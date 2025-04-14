@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI UI 提示词生成器 | 智能设计助手</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6366F1;
+            --primary-light: #EEF2FF;
+            --primary-dark: #4F46E5;
+            --secondary-color: #F472B6;
+            --accent-color: #34D399;
+            --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+      
+        .dark {
+            --bg-primary: #111827;
+            --bg-secondary: #1F2937;
+            --bg-tertiary: #374151;
+            --text-primary: #F9FAFB;
+            --text-secondary: #D1D5DB;
+            --border-color: #4B5563;
+        }
+      
+        :root:not(.dark) {
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F9FAFB;
+            --bg-tertiary: #F3F4F6;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --border-color: #E5E7EB;
+        }
+      
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            transition: var(--transition-normal);
+        }
+      
+        .wizard-step {
+            transition: var(--transition-normal);
+        }
+      
+        .container {
+            max-width: 1280px;
+        }
+      
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: var(--transition-normal);
+        }
+      
+        .card:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+      
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            transition: var(--transition-bounce);
+            position: relative;
+            overflow: hidden;
+        }
+      
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+      
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+      
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+      
+        .btn-primary:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+      
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+      
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            transition: var(--transition-normal);
+        }
+      
+        .btn-secondary:hover {
+            filter: brightness(95%);
+            transform: translateY(-1px);
+        }
+      
+        .style-card {
+            cursor: pointer;
+            transition: var(--transition-bounce);
+            border: 2px solid transparent;
+            transform-origin: center bottom;
+            background-color: var(--bg-primary); /* Ensure background for contrast */
+            color: var(--text-primary); /* Ensure text color for contrast */
+        }
+      
+        .style-card.selected {
+            border-color: var(--primary-color);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .style-card.selected .check-mark {
+            opacity: 1; /* Make checkmark visible when selected */
+        }
+      
+        .style-card:hover:not(.selected) {
+            transform: translateY(-3px);
+            border-color: var(--border-color);
+        }
+      
+        .tab-button {
+            position: relative;
+            transition: var(--transition-normal);
+        }
+      
+        .tab-button.active {
+            color: var(--primary-color);
+        }
+      
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+            transform: scaleX(1);
+            transition: transform 0.3s ease;
+        }
+      
+        .tab-button:not(.active)::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+      
+        .tab-button:hover::after {
+            transform: scaleX(1);
+        }
+      
+        .input-container {
+            position: relative;
+        }
+      
+        .input-container i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            transition: var(--transition-normal);
+            pointer-events: none; /* Prevent icon from interfering with input focus */
+        }
+      
+        .input-container input:focus + i,
+        .input-container textarea:focus + i {
+            color: var(--primary-color);
+        }
+      
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+      
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+        }
+      
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 3px;
+        }
+      
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: var(--text-secondary);
+        }
+      
+        .feature-icon {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            transition: var(--transition-normal);
+        }
+      
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+      
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+      
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 0.5rem;
+            padding: 8px;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            transform-origin: bottom center;
+        }
+      
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+      
+        .shimmer {
+            background: linear-gradient(90deg, 
+            var(--bg-secondary) 0%, 
+            var(--bg-tertiary) 50%, 
+            var(--bg-secondary) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear; /* Changed timing function */
+        }
+      
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+      
+        .loading-dot {
+            animation: loading 1.4s infinite ease-in-out both; /* Adjusted timing */
+        }
+      
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+      
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+      
+        @keyframes loading {
+            0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); } /* Smoother animation */
+            40% { opacity: 1; transform: scale(1); }
+        }
+      
+        .color-swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition-bounce);
+            border: 2px solid var(--bg-primary);
+        }
+      
+        .color-swatch:hover {
+            transform: scale(1.2);
+        }
+      
+        .color-swatch.selected {
+            box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--primary-color); /* Adjusted shadow for visibility */
+            transform: scale(1.1);
+        }
+      
+        .tag {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            transition: var(--transition-normal);
+        }
+      
+        .tag:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+      
+        .tag.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .industry-tag { /* Added specific style for industry tag */
+            transition: var(--transition-normal);
+            border: 1px solid transparent; /* Add border for consistency */
+        }
+
+        .industry-tag.selected { /* Style for selected industry tag */
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border-color: var(--primary-color);
+            font-weight: 500;
+        }
+      
+        .progress-container {
+            height: 4px;
+            width: 100%;
+            background-color: var(--bg-tertiary);
+            border-radius: 2px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+      
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+      
+        .progress-step {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--text-secondary);
+            transition: var(--transition-normal);
+            z-index: 1; /* Ensure steps are above the bar */
+        }
+      
+        .progress-step.completed {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+      
+        .progress-step.active {
+            background-color: var(--bg-primary); /* Use primary bg for contrast */
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translate(-50%, -50%) scale(1.1); /* Make active step slightly larger */
+        }
+      
+        .flip-in {
+            animation: flip-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+      
+        @keyframes flip-in {
+            0% {
+                opacity: 0;
+                transform: perspective(400px) rotateX(-90deg);
+            }
+            100% {
+                opacity: 1;
+                transform: perspective(400px) rotateX(0);
+            }
+        }
+      
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-left: 30px; /* Ensure enough space for checkmark */
+            cursor: pointer;
+            user-select: none;
+            min-height: 22px; /* Ensure minimum height */
+        }
+      
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+      
+        .checkmark {
+            position: absolute;
+            left: 0;
+            top: 50%; /* Center vertically */
+            transform: translateY(-50%); /* Center vertically */
+            height: 22px;
+            width: 22px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            transition: var(--transition-normal);
+        }
+      
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: var(--bg-secondary);
+        }
+      
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .checkbox-container input:focus-visible ~ .checkmark { /* Style for keyboard focus */
+            box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--primary-color);
+            outline: none;
+        }
+      
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 7px;
+            top: 3px;
+            width: 6px;
+            height: 11px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+      
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+      
+        .component-tag {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: var(--bg-tertiary);
+            margin-bottom: 8px;
+            transition: var(--transition-normal);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+      
+        .component-tag:hover {
+            background-color: var(--bg-secondary);
+            transform: translateX(5px);
+        }
+      
+        .component-tag.selected {
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
+            color: var(--primary-dark); /* Ensure text color changes */
+        }
+      
+        .component-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .component-tag.selected .component-icon {
+            color: var(--primary-dark); /* Match text color */
+        }
+      
+        .fade-in {
+            animation: fade-in 0.5s ease forwards;
+        }
+      
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+      
+        input, select, textarea {
+            transition: var(--transition-normal);
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary); /* Ensure bg color for contrast */
+            color: var(--text-primary); /* Ensure text color */
+            border-radius: 0.375rem; /* Default Tailwind border radius */
+        }
+
+        input::placeholder, textarea::placeholder { /* Style placeholder text */
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+      
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 102, 0.2);
+            outline: none;
+        }
+      
+        .color-picker-container {
+            position: relative;
+        }
+      
+        .color-picker {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+            background: var(--bg-secondary);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            border: 1px solid var(--border-color);
+            width: 250px;
+            display: none; /* Controlled by JS */
+        }
+      
+        .color-picker.active {
+            display: block;
+            animation: scale-in 0.2s ease forwards;
+        }
+      
+        @keyframes scale-in {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+      
+        .color-preview {
+            width: 100%;
+            height: 30px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+      
+        .gradient-preview {
+            background: linear-gradient(to right, #FF0000, #FFA500, #FFFF00, #008000, #0000FF, #4B0082, #EE82EE);
+        }
+
+        /* 新增样式 - UI组件预览 */
+        .component-preview {
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            background-color: var(--bg-tertiary);
+            transition: var(--transition-normal);
+            min-height: 150px; /* Ensure minimum height */
+        }
+      
+        .component-preview:hover {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+      
+        /* 新增样式 - 预设模板卡片 */
+        .template-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: var(--transition-normal);
+            background-color: var(--bg-secondary); /* Ensure background */
+        }
+      
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+      
+        .template-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.7) 100%);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 8px; /* Match parent */
+        }
+      
+        .template-card:hover::before {
+            opacity: 1;
+        }
+      
+        .template-card .template-actions {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Align items vertically */
+            z-index: 2;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+      
+        .template-card:hover .template-actions {
+            transform: translateY(0);
+        }
+
+        /* Style buttons inside template card for better visibility */
+        .template-card .template-actions button {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #333;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        .template-card .template-actions button:hover {
+            background-color: white;
+        }
+
+        /* 新增样式 - 颜色主题预览 */
+        .theme-preview {
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: var(--transition-normal);
+            cursor: pointer;
+            border: 1px solid var(--border-color); /* Add border */
+        }
+      
+        .theme-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+      
+        .theme-color {
+            height: 20px;
+        }
+      
+        /* 导出选项样式 */
+        .export-option {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            transition: var(--transition-normal);
+            cursor: pointer;
+            background-color: var(--bg-secondary); /* Ensure background */
+        }
+      
+        .export-option:hover {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+      
+        .export-option.selected {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+            color: var(--primary-dark); /* Ensure text color */
+        }
+      
+        /* AI生成进度条样式 */
+        .ai-progress-container {
+            height: 6px;
+            width: 100%;
+            background-color: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+      
+        .ai-progress-bar {
+            height: 100%;
+            width: 0%; /* Controlled by JS */
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            animation: progress-anim 2s ease-in-out infinite;
+            background-size: 200% 100%;
+        }
+      
+        @keyframes progress-anim {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 为UI组件搜索和分类添加样式 */
+        .component-search {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .component-search input {
+            flex: 1;
+            height: 40px;
+            padding: 0 15px;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .component-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .category-pill {
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            cursor: pointer;
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            transition: var(--transition-normal);
+        }
+
+        .category-pill:hover {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .category-pill.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+
+        /* 自定义颜色选择器样式 */
+        .custom-color-container {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .custom-color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            transition: var(--transition-normal);
+        }
+
+        .custom-color-input {
+            flex: 1;
+            height: 40px;
+            font-size: 16px;
+        }
+
+        /* 生成提示词区域内的复制按钮样式 */
+        .copy-animation {
+            animation: pulse 1s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* 添加淡入淡出效果 */
+        .fade-in-out {
+            animation: fadeInOut 1.5s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* 组件分类容器样式 */
+        .component-section {
+            margin-bottom: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .component-section-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .component-group {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .component-group.collapsed {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* 侧栏UI预览样式增强 */
+        .preview-placeholder {
+            color: var(--text-secondary);
+            font-style: italic;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .preview-component {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            transition: var(--transition-normal);
+        }
+
+        .preview-component:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+<div class="container mx-auto px-4 py-6">
+    <header class="flex justify-between items-center mb-8">
+        <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
+                <i class="fas fa-wand-magic-sparkles text-xl"></i>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold">AI UI <span class="text-indigo-500">提示词生成器</span></h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 transition-colors hover:bg-gray-300 dark:hover:bg-gray-600" aria-label="切换主题">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block"></i>
+            </button>
+            <div class="relative">
+                <button id="languageSelector" class="px-3 py-2 rounded-md bg-gray-100 dark:bg-gray-800 flex items-center space-x-1 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" aria-label="选择语言" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-globe text-sm mr-1"></i>
+                    <span>中文</span>
+                    <i class="fas fa-chevron-down text-xs ml-1"></i>
+                </button>
+                <div id="languageDropdown" class="absolute right-0 mt-2 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 hidden">
+                    <ul class="py-1">
+                        <li class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer selected">中文</li>
+                        <li class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">English</li>
+                    </ul>
+                </div>
+            </div>
+            <button id="helpButton" class="p-2 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300" aria-label="帮助">
+                <i class="fas fa-question"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div id="progressBar" class="progress-bar" style="width: 25%"></div>
+        <div class="progress-step completed" style="left: 25%" id="step1">1</div>
+        <div class="progress-step" style="left: 50%" id="step2">2</div>
+        <div class="progress-step" style="left: 75%" id="step3">3</div>
+        <div class="progress-step" style="left: 100%" id="step4">4</div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 左侧栏 - 输入选项 -->
+        <div class="lg:col-span-2">
+            <!-- 向导容器 -->
+            <div class="card p-6 mb-6">
+                <div class="wizard-container">
+                    <!-- 步骤 1: 设计目的 -->
+                    <div class="wizard-step" id="wizardStep1">
+                        <h2 class="text-2xl font-bold mb-4 flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3">1</div>
+                            设计目的
+                        </h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">首先选择您的 UI 设计目的和行业，这将帮助我们为您生成更精准的提示词</p>
+
+                        <h3 class="font-medium mb-3">您的 UI 用于什么目的？</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6 custom-scrollbar" style="max-height: 400px; overflow-y: auto;">
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="website">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-globe text-3xl text-blue-500"></i>
+                                </div>
+                                <p class="font-medium">网站</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">公司官网、产品展示等</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="mobile-app">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-mobile-alt text-3xl text-green-500"></i>
+                                </div>
+                                <p class="font-medium">移动应用</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">iOS、Android 等平台</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="dashboard">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-chart-line text-3xl text-purple-500"></i>
+                                </div>
+                                <p class="font-medium">仪表盘</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">数据分析、监控等</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="ecommerce">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-shopping-cart text-3xl text-orange-500"></i>
+                                </div>
+                                <p class="font-medium">电子商务</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">在线商店、购物平台等</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="marketing">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-bullhorn text-3xl text-pink-500"></i>
+                                </div>
+                                <p class="font-medium">营销推广</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">广告页面、活动推广等</p>
+                            </div>
+                            <!-- 新增UI目的 -->
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="social-media">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-users text-3xl text-blue-400"></i>
+                                </div>
+                                <p class="font-medium">社交媒体</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">社交平台、社区应用等</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="education">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-graduation-cap text-3xl text-yellow-600"></i>
+                                </div>
+                                <p class="font-medium">教育平台</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">学习系统、在线课堂等</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="productivity">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-tasks text-3xl text-green-600"></i>
+                                </div>
+                                <p class="font-medium">生产力工具</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">任务管理、协作工具等</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="entertainment">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-film text-3xl text-red-600"></i>
+                                </div>
+                                <p class="font-medium">娱乐应用</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">视频、游戏、音乐等</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="health">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-heartbeat text-3xl text-red-500"></i>
+                                </div>
+                                <p class="font-medium">健康应用</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">健身、医疗监测等</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="travel">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-plane text-3xl text-cyan-500"></i>
+                                </div>
+                                <p class="font-medium">旅行服务</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">旅游规划、预订服务等</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="finance">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-chart-pie text-3xl text-green-500"></i>
+                                </div>
+                                <p class="font-medium">金融工具</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">投资分析、预算管理等</p>
+                            </div>
+                            <div class="purpose-card style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm text-center relative" data-purpose="other">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <div class="h-12 flex items-center justify-center mb-3">
+                                    <i class="fas fa-ellipsis-h text-3xl text-gray-500"></i>
+                                </div>
+                                <p class="font-medium">其他</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">自定义目的</p>
+                            </div>
+                        </div>
+                          
+                        <h3 class="font-medium mb-3">选择行业领域</h3>
+                        <div class="flex flex-wrap gap-2 mb-6 max-h-40 custom-scrollbar overflow-y-auto pb-2">
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="tech">科技</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="finance">金融</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="healthcare">医疗健康</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="education">教育</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="entertainment">娱乐</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="food">餐饮</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="travel">旅游</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="real-estate">房地产</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="fashion">时尚</span>
+                            <!-- 新增行业标签 -->
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="retail">零售</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="manufacturing">制造业</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="transportation">交通运输</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="energy">能源</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="agriculture">农业</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="construction">建筑</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="media">媒体</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="sports">体育</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="gaming">游戏</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="automotive">汽车</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="legal">法律</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="government">政府</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="nonprofit">非营利组织</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="art">艺术文化</span>
+                            <span class="industry-tag tag px-3 py-2 rounded-full cursor-pointer" data-industry="other">其他</span>
+                        </div>
+                          
+                        <div class="flex justify-end">
+                            <button id="nextStep1" class="btn-primary px-6 py-3 rounded-md">下一步</button>
+                        </div>
+                    </div>
+                    <!-- 步骤 2: 风格选择 -->
+                    <div class="wizard-step hidden" id="wizardStep2">
+                        <h2 class="text-2xl font-bold mb-4 flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3">2</div>
+                            风格选择
+                        </h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">选择您喜欢的 UI 风格，我们将据此生成更符合您审美的提示词</p>
+                          
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6 max-h-96 overflow-y-auto custom-scrollbar pr-2">
+                            <!-- 简约风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="简约">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=150&q=80" alt="简约风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">简约</p>
+                            </div>
+                            
+                            <!-- 现代风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="现代">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=150&q=80" alt="现代风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">现代</p>
+                            </div>
+                            
+                            <!-- 复古风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="复古">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=200&h=150" alt="复古风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">复古</p>
+                            </div>
+                            
+                            <!-- 卡通风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="卡通">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1619950835688-1bddaffce4a0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fCVFNSU4RCVBMSVFOSU4MCU5QSVFNyVCRCU5MSVFNyVBQiU5OXxlbnwwfHwwfHx8MA%3D%3D" alt="卡通风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">卡通</p>
+                            </div>
+                            
+                            <!-- 科技风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="科技">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=150&q=80" alt="科技风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">科技</p>
+                            </div>
+                            
+                            <!-- 手绘风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="手绘">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=150&q=80" alt="手绘风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">手绘</p>
+                            </div>
+
+                            <!-- 新增风格 -->
+                            <!-- 极简风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="极简">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=150&q=80" alt="极简风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">极简</p>
+                            </div>
+                            
+                            <!-- 扁平化风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="扁平化">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1545235617-9465d2a55698?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=150&q=80" alt="扁平化风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">扁平化</p>
+                            </div>
+                            
+                            <!-- 拟物化风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="拟物化">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=150&q=80" alt="拟物化风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">拟物化</p>
+                            </div>
+                            
+                            <!-- 新拟物风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="新拟物">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=150&q=80" alt="新拟物风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">新拟物</p>
+                            </div>
+                            
+                            <!-- 未来主义风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="未来主义">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=150&q=80" alt="未来主义风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">未来主义</p>
+                            </div>
+                            
+                            <!-- 水墨风格 -->
+                            <div class="style-card p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm relative" data-style="水墨">
+                                <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark">
+                                    <i class="fas fa-check text-xs"></i>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1658402995914-22a4ba7e1a94?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fCVFNiVCMCVCNCVFNSVBMiVBOCVFOSVBMyU4RSVFNiVBMCVCQ3xlbnwwfHwwfHx8MA%3D%3D" alt="水墨风格" class="rounded-md mb-3">
+                                <p class="font-medium text-center">水墨</p>
+                            </div>
+                        </div>
+                          
+                        <div class="flex justify-between">
+                            <button id="prevStep2" class="btn-secondary px-6 py-3 rounded-md">上一步</button>
+                            <button id="nextStep2" class="btn-primary px-6 py-3 rounded-md">下一步</button>
+                        </div>
+                    </div>
+                    <!-- 步骤 3: 颜色和组件 -->
+                    <div class="wizard-step hidden" id="wizardStep3">
+                        <h2 class="text-2xl font-bold mb-4 flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3">3</div>
+                            颜色和组件
+                        </h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">选择您喜欢的主题色和需要的 UI 组件，这将帮助我们更好地生成提示词</p>
+
+                        <h3 class="font-medium mb-3">主题颜色</h3>
+                        <div class="flex flex-wrap items-center gap-3 mb-4">
+                            <!-- 颜色选择器 -->
+                            <div class="color-swatch" style="background-color:#F44336;" data-color="#F44336"></div>
+                            <div class="color-swatch" style="background-color:#E91E63;" data-color="#E91E63"></div>
+                            <div class="color-swatch" style="background-color:#9C27B0;" data-color="#9C27B0"></div>
+                            <div class="color-swatch" style="background-color:#673AB7;" data-color="#673AB7"></div>
+                            <div class="color-swatch" style="background-color:#3F51B5;" data-color="#3F51B5"></div>
+                            <div class="color-swatch" style="background-color:#2196F3;" data-color="#2196F3"></div>
+                            <div class="color-swatch" style="background-color:#03A9F4;" data-color="#03A9F4"></div>
+                            <div class="color-swatch" style="background-color:#00BCD4;" data-color="#00BCD4"></div>
+                            <div class="color-swatch" style="background-color:#009688;" data-color="#009688"></div>
+                            <div class="color-swatch" style="background-color:#4CAF50;" data-color="#4CAF50"></div>
+                            <div class="color-swatch" style="background-color:#8BC34A;" data-color="#8BC34A"></div>
+                            <div class="color-swatch" style="background-color:#CDDC39;" data-color="#CDDC39"></div>
+                            <div class="color-swatch" style="background-color:#FFEB3B;" data-color="#FFEB3B"></div>
+                            <div class="color-swatch" style="background-color:#FFC107;" data-color="#FFC107"></div>
+                            <div class="color-swatch" style="background-color:#FF9800;" data-color="#FF9800"></div>
+                            <div class="color-swatch" style="background-color:#FF5722;" data-color="#FF5722"></div>
+                            <div class="color-swatch" style="background-color:#795548;" data-color="#795548"></div>
+                            <div class="color-swatch" style="background-color:#9E9E9E;" data-color="#9E9E9E"></div>
+                            <div class="color-swatch" style="background-color:#607D8B;" data-color="#607D8B"></div>
+                        </div>
+
+                        <!-- 自定义颜色输入 -->
+                        <div class="custom-color-container mb-6">
+                            <div id="customColorPreview" class="custom-color-preview" style="background-color:#6366F1;"></div>
+                            <input type="text" id="customColorInput" class="custom-color-input shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200" placeholder="#6366F1 或 rgb(99, 102, 241)" value="#6366F1">
+                            <button id="applyCustomColor" class="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors">应用</button>
+                        </div>
+
+                        <h3 class="font-medium mb-3">选择需要的 UI 组件</h3>
+                        
+                        <!-- 组件搜索 -->
+                        <div class="component-search">
+                            <input type="text" id="componentSearch" placeholder="搜索组件..." class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200">
+                            <button id="clearSearch" class="px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <!-- 组件分类 -->
+                        <div class="component-categories">
+                            <span class="category-pill active" data-category="all">全部</span>
+                            <span class="category-pill" data-category="navigation">导航类</span>
+                            <span class="category-pill" data-category="content">内容类</span>
+                            <span class="category-pill" data-category="interaction">交互类</span>
+                            <span class="category-pill" data-category="data">数据类</span>
+                            <span class="category-pill" data-category="mobile">移动端</span>
+                            <span class="category-pill" data-category="dialog">弹窗类</span>
+                        </div>
+
+                        <!-- UI 组件列表容器 -->
+                        <div id="componentContainer" class="max-h-96 overflow-y-auto custom-scrollbar pr-2">
+                            <!-- 导航类组件 -->
+                            <div class="component-section" data-category="navigation">
+                                <div class="component-section-title">
+                                    <i class="fas fa-bars text-indigo-500"></i> 导航类组件
+                                </div>
+                                <div class="component-group">
+                                    <div class="component-tag" data-category="navigation">
+                                        <span class="component-icon"><i class="fas fa-bars"></i></span> 导航栏
+                                    </div>
+                                    <div class="component-tag" data-category="navigation">
+                                        <span class="component-icon"><i class="fas fa-search"></i></span> 搜索框
+                                    </div>
+                                    <div class="component-tag" data-category="navigation">
+                                        <span class="component-icon"><i class="fas fa-bread-slice"></i></span> 面包屑导航
+                                    </div>
+                                    <div class="component-tag" data-category="navigation">
+                                        <span class="component-icon"><i class="fas fa-list-ul"></i></span> 侧边导航
+                                    </div>
+                                    <div class="component-tag" data-category="navigation">
+                                        <span class="component-icon"><i class="fas fa-th-large"></i></span> 导航卡片
+                                    </div>
+                                    <div class="component-tag" data-category="navigation">
+                                        <span class="component-icon"><i class="fas fa-arrow-up"></i></span> 返回顶部按钮
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 内容类组件 -->
+                            <div class="component-section" data-category="content">
+                                <div class="component-section-title">
+                                    <i class="fas fa-file-alt text-indigo-500"></i> 内容类组件
+                                </div>
+                                <div class="component-group">
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="fas fa-star"></i></span> Hero区域
+                                    </div>
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="fas fa-columns"></i></span> 内容区块
+                                    </div>
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="fas fa-images"></i></span> 图片画廊
+                                    </div>
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="far fa-image"></i></span> 轮播图
+                                    </div>
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="fas fa-video"></i></span> 视频播放器
+                                    </div>
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="fas fa-quote-left"></i></span> 客户评价
+                                    </div>
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="fas fa-users"></i></span> 团队成员展示
+                                    </div>
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="fas fa-shopping-bag"></i></span> 产品展示
+                                    </div>
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="fas fa-file-alt"></i></span> 博客文章
+                                    </div>
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="fas fa-question-circle"></i></span> FAQ折叠面板
+                                    </div>
+                                    <div class="component-tag" data-category="content">
+                                        <span class="component-icon"><i class="fas fa-code"></i></span> 代码展示
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 交互类组件 -->
+                            <div class="component-section" data-category="interaction">
+                                <div class="component-section-title">
+                                    <i class="fas fa-mouse-pointer text-indigo-500"></i> 交互类组件
+                                </div>
+                                <div class="component-group">
+                                    <div class="component-tag" data-category="interaction">
+                                        <span class="component-icon"><i class="fas fa-envelope"></i></span> 联系表单
+                                    </div>
+                                    <div class="component-tag" data-category="interaction">
+                                        <span class="component-icon"><i class="fas fa-comments"></i></span> 评论区
+                                    </div>
+                                    <div class="component-tag" data-category="interaction">
+                                        <span class="component-icon"><i class="fas fa-share-alt"></i></span> 社交分享
+                                    </div>
+                                    <div class="component-tag" data-category="interaction">
+                                        <span class="component-icon"><i class="fas fa-bolt"></i></span> 悬浮操作按钮
+                                    </div>
+                                    <div class="component-tag" data-category="interaction">
+                                        <span class="component-icon"><i class="fas fa-rss"></i></span> 订阅组件
+                                    </div>
+                                    <div class="component-tag" data-category="interaction">
+                                        <span class="component-icon"><i class="fas fa-shopping-cart"></i></span> 购物车
+                                    </div>
+                                    <div class="component-tag" data-category="interaction">
+                                        <span class="component-icon"><i class="fas fa-filter"></i></span> 筛选器
+                                    </div>
+                                    <div class="component-tag" data-category="interaction">
+                                        <span class="component-icon"><i class="fas fa-language"></i></span> 语言切换
+                                    </div>
+                                    <div class="component-tag" data-category="interaction">
+                                        <span class="component-icon"><i class="fas fa-cookie-bite"></i></span> Cookie提示
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 数据类组件 -->
+                            <div class="component-section" data-category="data">
+                                <div class="component-section-title">
+                                    <i class="fas fa-chart-line text-indigo-500"></i> 数据类组件
+                                </div>
+                                <div class="component-group">
+                                    <div class="component-tag" data-category="data">
+                                        <span class="component-icon"><i class="fas fa-table"></i></span> 数据表格
+                                    </div>
+                                    <div class="component-tag" data-category="data">
+                                        <span class="component-icon"><i class="fas fa-chart-pie"></i></span> 图表
+                                    </div>
+                                    <div class="component-tag" data-category="data">
+                                        <span class="component-icon"><i class="fas fa-map-marker-alt"></i></span> 地图集成
+                                    </div>
+                                    <div class="component-tag" data-category="data">
+                                        <span class="component-icon"><i class="fas fa-calendar-alt"></i></span> 活动日历
+                                    </div>
+                                    <div class="component-tag" data-category="data">
+                                        <span class="component-icon"><i class="fas fa-chart-bar"></i></span> 统计卡片
+                                    </div>
+                                    <div class="component-tag" data-category="data">
+                                        <span class="component-icon"><i class="fas fa-tags"></i></span> 标签云
+                                    </div>
+                                    <div class="component-tag" data-category="data">
+                                        <span class="component-icon"><i class="fas fa-check-circle"></i></span> 进度指示器
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 移动端专用组件 -->
+                            <div class="component-section" data-category="mobile">
+                                <div class="component-section-title">
+                                    <i class="fas fa-mobile-alt text-indigo-500"></i> 移动端专用组件
+                                </div>
+                                <div class="component-group">
+                                    <div class="component-tag" data-category="mobile">
+                                        <span class="component-icon"><i class="fas fa-mobile-screen-button"></i></span> 底部导航栏
+                                    </div>
+                                    <div class="component-tag" data-category="mobile">
+                                        <span class="component-icon"><i class="fas fa-hand-holding-usd"></i></span> 移动支付按钮
+                                    </div>
+                                    <div class="component-tag" data-category="mobile">
+                                        <span class="component-icon"><i class="fas fa-fingerprint"></i></span> 生物识别登录
+                                    </div>
+                                    <div class="component-tag" data-category="mobile">
+                                        <span class="component-icon"><i class="fas fa-swipe"></i></span> 滑动操作
+                                    </div>
+                                    <div class="component-tag" data-category="mobile">
+                                        <span class="component-icon"><i class="fas fa-arrows-alt-v"></i></span> 下拉刷新
+                                    </div>
+                                    <div class="component-tag" data-category="mobile">
+                                        <span class="component-icon"><i class="fas fa-location-arrow"></i></span> 地理定位
+                                    </div>
+                                    <div class="component-tag" data-category="mobile">
+                                        <span class="component-icon"><i class="fas fa-qrcode"></i></span> 扫码功能
+                                    </div>
+                                    <div class="component-tag" data-category="mobile">
+                                        <span class="component-icon"><i class="fas fa-comment-dots"></i></span> 手势操作提示
+                                    </div>
+                                    <div class="component-tag" data-category="mobile">
+                                        <span class="component-icon"><i class="fas fa-mobile-alt"></i></span> 响应式菜单
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 弹窗类组件 -->
+                            <div class="component-section" data-category="dialog">
+                                <div class="component-section-title">
+                                    <i class="fas fa-window-maximize text-indigo-500"></i> 弹窗类组件
+                                </div>
+                                <div class="component-group">
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-window-maximize"></i></span> 模态弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-exclamation-circle"></i></span> 警告弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-check-circle"></i></span> 确认弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-bell"></i></span> 通知弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-sign-in-alt"></i></span> 登录弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-shopping-cart"></i></span> 快速购买弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-share-square"></i></span> 分享弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-image"></i></span> 图片查看器弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-calendar-day"></i></span> 日期选择弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-filter"></i></span> 筛选弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-search-location"></i></span> 全屏搜索弹窗
+                                    </div>
+                                    <div class="component-tag" data-category="dialog">
+                                        <span class="component-icon"><i class="fas fa-hourglass-half"></i></span> 加载中弹窗
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between mt-6">
+                            <button id="prevStep3" class="btn-secondary px-6 py-3 rounded-md">上一步</button>
+                            <button id="nextStep3" class="btn-primary px-6 py-3 rounded-md">下一步</button>
+                        </div>
+                    </div>
+
+                    <!-- 步骤 4: 生成提示词 -->
+                    <div class="wizard-step hidden" id="wizardStep4">
+                        <h2 class="text-2xl font-bold mb-4 flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3">4</div>
+                            生成提示词
+                        </h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">根据您的选择，AI 将生成最适合您的 UI 设计提示词</p>
+
+                        <div class="mb-6">
+                            <label for="additionalDetails" class="block text-gray-700 dark:text-gray-200 font-bold mb-2">更多细节 (可选):</label>
+                            <textarea id="additionalDetails" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200" placeholder="例如：深色模式、动画效果等"></textarea>
+                        </div>
+
+                        <!-- AI 生成提示词进度条 -->
+                        <div class="ai-progress-container mb-4">
+                            <div class="ai-progress-bar" id="aiProgressBar"></div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="generatedPrompt" class="block text-gray-700 dark:text-gray-200 font-bold mb-2">生成的提示词:</label>
+                            <div class="relative">
+                                <div id="generatedPrompt" class="whitespace-pre-line p-4 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 pr-12 min-h-[100px]">
+                                    请点击"生成提示词"按钮来获取您的 UI 设计提示词...
+                                </div>
+                                <button id="copyPromptBtn" class="absolute top-2 right-2 p-2 bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300 rounded hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors" title="复制提示词">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <span id="copyStatus" class="absolute top-2 right-12 text-green-500 text-sm font-medium opacity-0 transition-opacity">已复制!</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <button id="prevStep4" class="btn-secondary px-6 py-3 rounded-md">上一步</button>
+                            <button id="generatePrompt" class="btn-primary px-6 py-3 rounded-md">生成提示词</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 右侧栏 - 预览和提示 -->
+        <div>
+            <!-- UI 组件预览 -->
+            <div class="card p-4 mb-6">
+                <h3 class="text-lg font-medium mb-3">UI 组件预览</h3>
+                <div class="component-preview" id="previewContainer">
+                    <div class="preview-placeholder">
+                        <p>选择组件后会在这里显示预览</p>
+                        <i class="fas fa-arrow-left text-2xl mt-2"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- 当前选择 -->
+            <div class="card p-4 mb-6">
+                <h3 class="text-lg font-medium mb-3">当前选择</h3>
+                <ul class="list-none space-y-2 text-gray-700 dark:text-gray-300">
+                    <li id="selectedPurpose"><i class="fas fa-bullseye mr-2 text-indigo-500"></i> <span>设计目的: 未选择</span></li>
+                    <li id="selectedIndustry"><i class="fas fa-building mr-2 text-indigo-500"></i> <span>行业: 未选择</span></li>
+                    <li id="selectedStyle"><i class="fas fa-palette mr-2 text-indigo-500"></i> <span>风格: 未选择</span></li>
+                    <li id="selectedColor"><i class="fas fa-fill-drip mr-2 text-indigo-500"></i> <span>主题色: 未选择</span></li>
+                    <li id="selectedComponentsCount"><i class="fas fa-cubes mr-2 text-indigo-500"></i> <span>已选组件: 0 个</span></li>
+                </ul>
+            </div>
+            <!-- 提示和技巧 -->
+            <div class="card p-4 mb-6">
+                <h3 class="text-lg font-medium mb-3">提示和技巧</h3>
+                <ul class="list-disc pl-5 text-gray-600 dark:text-gray-300">
+                    <li>选择清晰的设计目的</li>
+                    <li>尝试不同的风格组合</li>
+                    <li>添加更多细节描述，提高生成精准度</li>
+                    <li>为获得最佳效果，请选择3-5个核心组件</li>
+                    <li>可以尝试复制生成的提示词到AI绘图工具中生成UI图</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center mt-8 text-gray-500 dark:text-gray-400">
+        &copy; 2024 AI UI 提示词生成器
+    </footer>
+</div>
+
+<!-- JavaScript -->
+<script>
+    // UI提示词生成器 - 重构版
+    (function() {
+      // 缓存DOM元素引用
+      const elements = {
+        // 主题相关
+        themeToggle: document.getElementById('themeToggle'),
+        languageSelector: document.getElementById('languageSelector'),
+        languageDropdown: document.getElementById('languageDropdown'),
+        
+        // 向导步骤相关
+        progressBar: document.getElementById('progressBar'),
+        steps: {
+          step1: document.getElementById('step1'),
+          step2: document.getElementById('step2'),
+          step3: document.getElementById('step3'),
+          step4: document.getElementById('step4')
+        },
+        wizardSteps: {
+          step1: document.getElementById('wizardStep1'),
+          step2: document.getElementById('wizardStep2'),
+          step3: document.getElementById('wizardStep3'),
+          step4: document.getElementById('wizardStep4')
+        },
+        navigationButtons: {
+          nextStep1: document.getElementById('nextStep1'),
+          nextStep2: document.getElementById('nextStep2'),
+          nextStep3: document.getElementById('nextStep3'),
+          prevStep2: document.getElementById('prevStep2'),
+          prevStep3: document.getElementById('prevStep3'),
+          prevStep4: document.getElementById('prevStep4')
+        },
+        
+        // 选择相关
+        purposeCards: document.querySelectorAll('.purpose-card'),
+        styleCards: document.querySelectorAll('.style-card'),
+        industryTags: document.querySelectorAll('.industry-tag'),
+        colorSwatches: document.querySelectorAll('.color-swatch'),
+        componentTags: document.querySelectorAll('.component-tag'),
+        categoryPills: document.querySelectorAll('.category-pill'),
+        
+        // 颜色相关
+        customColorInput: document.getElementById('customColorInput'),
+        customColorPreview: document.getElementById('customColorPreview'),
+        applyCustomColor: document.getElementById('applyCustomColor'),
+        
+        // 组件相关
+        componentSearch: document.getElementById('componentSearch'),
+        clearSearch: document.getElementById('clearSearch'),
+        previewContainer: document.getElementById('previewContainer'),
+        
+        // 提示词生成相关
+        generatePromptButton: document.getElementById('generatePrompt'),
+        aiProgressBar: document.getElementById('aiProgressBar'),
+        generatedPrompt: document.getElementById('generatedPrompt'),
+        additionalDetails: document.getElementById('additionalDetails'),
+        copyPromptBtn: document.getElementById('copyPromptBtn'),
+        copyStatus: document.getElementById('copyStatus'),
+        
+        // 选择状态显示
+        selectedPurpose: document.getElementById('selectedPurpose'),
+        selectedIndustry: document.getElementById('selectedIndustry'),
+        selectedStyle: document.getElementById('selectedStyle'),
+        selectedColor: document.getElementById('selectedColor'),
+        selectedComponentsCount: document.getElementById('selectedComponentsCount'),
+        
+        // 组件搜索和分类相关
+        componentSearch: document.getElementById('componentSearch'),
+        clearSearch: document.getElementById('clearSearch'),
+        componentContainer: document.getElementById('componentContainer'),
+        categoryPills: document.querySelectorAll('.category-pill'),
+        componentGroups: document.querySelectorAll('.component-group'),
+        componentTags: document.querySelectorAll('.component-tag'),
+        noResultsMessage: document.getElementById('noResultsMessage')
+      };
+      
+      // 状态管理
+      const state = {
+        theme: localStorage.getItem('theme') || 'light',
+        language: 'zh-CN',
+        currentStep: 1,
+        currentCategory: 'all', // 当前选中的组件分类
+        selections: {
+          purpose: '',
+          purposeText: '',
+          industry: '',
+          industryText: '',
+          style: '',
+          color: '#6366F1',
+          components: [],
+          additionalDetails: ''
+        }
+      };
+      
+      // 主题管理
+      const themeManager = {
+        init() {
+          this.checkSystemPreference();
+          this.bindEvents();
+          this.loadSavedTheme();
+        },
+        
+        checkSystemPreference() {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+          }
+        },
+        
+        bindEvents() {
+          window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (e.matches) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          });
+          
+          elements.themeToggle.addEventListener('click', () => this.toggleTheme());
+        },
+        
+        toggleTheme() {
+          const isDark = document.documentElement.classList.contains('dark');
+          document.documentElement.classList.toggle('dark');
+          localStorage.setItem('theme', isDark ? 'light' : 'dark');
+          state.theme = isDark ? 'light' : 'dark';
+        },
+        
+        loadSavedTheme() {
+          if (state.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+      };
+      
+      // 向导步骤管理
+      const wizardManager = {
+        init() {
+          this.bindEvents();
+        },
+        
+        bindEvents() {
+          Object.entries(elements.navigationButtons).forEach(([key, button]) => {
+            button.addEventListener('click', () => this.handleNavigation(key));
+          });
+        },
+        
+        handleNavigation(buttonId) {
+          const actions = {
+            nextStep1: () => this.moveToStep(2),
+            nextStep2: () => this.moveToStep(3),
+            nextStep3: () => this.moveToStep(4),
+            prevStep2: () => this.moveToStep(1),
+            prevStep3: () => this.moveToStep(2),
+            prevStep4: () => this.moveToStep(3)
+          };
+          
+          if (actions[buttonId]) {
+            actions[buttonId]();
+          }
+        },
+        
+        moveToStep(step) {
+          // 隐藏当前步骤
+          elements.wizardSteps[`step${state.currentStep}`].classList.add('hidden');
+          
+          // 显示目标步骤
+          elements.wizardSteps[`step${step}`].classList.remove('hidden');
+          
+          // 更新进度条和步骤状态
+          this.updateProgress(step);
+          
+          // 更新当前步骤
+          state.currentStep = step;
+        },
+        
+        updateProgress(step) {
+          const progressWidth = step * 25;
+          elements.progressBar.style.width = `${progressWidth}%`;
+          
+          // 更新步骤状态
+          for (let i = 1; i <= 4; i++) {
+            const stepElement = elements.steps[`step${i}`];
+            if (i < step) {
+              stepElement.classList.add('completed');
+              stepElement.classList.remove('active');
+            } else if (i === step) {
+              stepElement.classList.add('active');
+              stepElement.classList.remove('completed');
+            } else {
+              stepElement.classList.remove('completed', 'active');
+            }
+          }
+        }
+      };
+      
+      // 组件管理器
+      const componentManager = {
+        init() {
+          this.bindEvents();
+          this.initializeSearch();
+          this.initializeCategories();
+        },
+
+        bindEvents() {
+          // 搜索相关事件
+          elements.componentSearch.addEventListener('input', () => this.handleSearch());
+          elements.clearSearch.addEventListener('click', () => this.clearSearch());
+
+          // 分类切换事件
+          elements.categoryPills.forEach(pill => {
+            pill.addEventListener('click', () => this.switchCategory(pill));
+          });
+
+          // 组件选择事件
+          elements.componentTags.forEach(tag => {
+            tag.addEventListener('click', () => this.toggleComponent(tag));
+          });
+        },
+
+        initializeSearch() {
+          // 初始化搜索框状态
+          elements.componentSearch.value = '';
+          elements.clearSearch.style.display = 'none';
+        },
+
+        initializeCategories() {
+          // 默认显示所有组件
+          this.showCategory('all');
+          elements.categoryPills[0].classList.add('active');
+        },
+
+        handleSearch() {
+          const searchTerm = elements.componentSearch.value.toLowerCase().trim();
+          elements.clearSearch.style.display = searchTerm ? 'block' : 'none';
+
+          let hasResults = false;
+          const visibleSections = Array.from(elements.componentContainer.querySelectorAll('.component-section'))
+            .filter(section => section.style.display !== 'none');
+
+          visibleSections.forEach(section => {
+            const components = section.querySelectorAll('.component-tag');
+            let sectionHasResults = false;
+
+            components.forEach(tag => {
+              const text = tag.textContent.toLowerCase();
+              const shouldShow = text.includes(searchTerm);
+              tag.style.display = shouldShow ? 'flex' : 'none';
+              if (shouldShow) {
+                sectionHasResults = true;
+                hasResults = true;
+              }
+            });
+
+            // 如果该分类下没有匹配的组件，隐藏整个分类
+            section.style.display = sectionHasResults ? 'block' : 'none';
+          });
+
+          // 更新无结果消息显示
+          if (elements.noResultsMessage) {
+            elements.noResultsMessage.style.display = hasResults ? 'none' : 'block';
+          }
+        },
+
+        clearSearch() {
+          elements.componentSearch.value = '';
+          elements.clearSearch.style.display = 'none';
+          if (elements.noResultsMessage) {
+            elements.noResultsMessage.style.display = 'none';
+          }
+          // 重新显示当前分类的组件
+          this.showCategory(state.currentCategory);
+        },
+
+        switchCategory(pill) {
+          const category = pill.dataset.category;
+          
+          // 更新UI状态
+          elements.categoryPills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+
+          // 更新状态并显示相应分类
+          state.currentCategory = category;
+          this.showCategory(category);
+
+          // 清空搜索框
+          elements.componentSearch.value = '';
+          elements.clearSearch.style.display = 'none';
+        },
+
+        showCategory(category) {
+          // 获取所有组件分组
+          const sections = elements.componentContainer.querySelectorAll('.component-section');
+          
+          sections.forEach(section => {
+            const sectionCategory = section.dataset.category;
+            if (category === 'all' || sectionCategory === category) {
+              section.style.display = 'block';
+              // 显示该分类下的所有组件
+              const components = section.querySelectorAll('.component-tag');
+              components.forEach(component => {
+                component.style.display = 'flex';
+              });
+            } else {
+              section.style.display = 'none';
+              // 隐藏其他分类的组件
+              const components = section.querySelectorAll('.component-tag');
+              components.forEach(component => {
+                component.style.display = 'none';
+              });
+            }
+          });
+
+          // 如果有搜索词，则执行搜索过滤
+          if (elements.componentSearch.value.trim()) {
+            this.handleSearch();
+          }
+        },
+
+        toggleComponent(tag) {
+          tag.classList.toggle('selected');
+          
+          // 更新选中的组件列表
+          state.selections.components = Array.from(document.querySelectorAll('.component-tag.selected'))
+            .map(t => t.textContent.trim());
+
+          // 更新组件预览
+          this.updateComponentPreview();
+          this.updateSelectionDisplay();
+        },
+
+        updateComponentPreview() {
+          const previewContainer = elements.previewContainer;
+          
+          if (state.selections.components.length === 0) {
+            previewContainer.innerHTML = `
+              <div class="preview-placeholder">
+                <p>选择组件后会在这里显示预览</p>
+                <i class="fas fa-arrow-left text-2xl mt-2"></i>
+              </div>
+            `;
+            return;
+          }
+
+          let previewHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+          state.selections.components.forEach((component, index) => {
+            if (index < 6) {
+              const componentTag = Array.from(elements.componentTags)
+                .find(tag => tag.textContent.trim() === component);
+              
+              if (componentTag) {
+                const iconHTML = componentTag.querySelector('.component-icon').innerHTML;
+                previewHTML += `
+                  <div class="preview-component bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                    <div class="flex items-center space-x-3">
+                      <div class="component-icon text-indigo-500">${iconHTML}</div>
+                      <span class="font-medium">${component}</span>
+                    </div>
+                  </div>
+                `;
+              }
+            }
+          });
+          previewHTML += '</div>';
+
+          if (state.selections.components.length > 6) {
+            previewHTML += `
+              <div class="text-center text-gray-500 mt-4">
+                +${state.selections.components.length - 6} 个其他组件
+              </div>
+            `;
+          }
+
+          previewContainer.innerHTML = previewHTML;
+        },
+
+        updateSelectionDisplay() {
+          elements.selectedComponentsCount.innerHTML = `
+            <i class="fas fa-cubes mr-2 text-indigo-500"></i>
+            <span>已选组件: ${state.selections.components.length} 个</span>
+          `;
+        }
+      };
+      
+      // 选择管理器
+      const selectionManager = {
+        init() {
+          this.bindEvents();
+        },
+
+        bindEvents() {
+          // 目的选择
+          elements.purposeCards.forEach(card => {
+            card.addEventListener('click', () => this.handlePurposeSelection(card));
+          });
+
+          // 风格选择
+          elements.styleCards.forEach(card => {
+            card.addEventListener('click', () => this.handleStyleSelection(card));
+          });
+
+          // 行业选择
+          elements.industryTags.forEach(tag => {
+            tag.addEventListener('click', () => this.handleIndustrySelection(tag));
+          });
+
+          // 颜色选择
+          elements.colorSwatches.forEach(swatch => {
+            swatch.addEventListener('click', () => this.handleColorSelection(swatch));
+          });
+
+          // 自定义颜色
+          elements.customColorInput.addEventListener('input', (e) => {
+            elements.customColorPreview.style.backgroundColor = e.target.value;
+          });
+
+          elements.applyCustomColor.addEventListener('click', () => {
+            const color = elements.customColorInput.value;
+            state.selections.color = color;
+            this.updateSelectionDisplay('color');
+          });
+        },
+
+        handlePurposeSelection(card) {
+          elements.purposeCards.forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          
+          state.selections.purpose = card.dataset.purpose;
+          state.selections.purposeText = card.querySelector('p.font-medium').textContent;
+          
+          this.updateSelectionDisplay('purpose');
+        },
+
+        handleStyleSelection(card) {
+          elements.styleCards.forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          
+          state.selections.style = card.dataset.style;
+          this.updateSelectionDisplay('style');
+        },
+
+        handleIndustrySelection(tag) {
+          elements.industryTags.forEach(t => t.classList.remove('selected'));
+          tag.classList.add('selected');
+          
+          state.selections.industry = tag.dataset.industry;
+          state.selections.industryText = tag.textContent;
+          
+          this.updateSelectionDisplay('industry');
+        },
+
+        handleColorSelection(swatch) {
+          elements.colorSwatches.forEach(s => s.classList.remove('selected'));
+          swatch.classList.add('selected');
+          
+          const color = swatch.getAttribute('data-color');
+          state.selections.color = color;
+          
+          elements.customColorInput.value = color;
+          elements.customColorPreview.style.backgroundColor = color;
+          
+          this.updateSelectionDisplay('color');
+        },
+
+        updateSelectionDisplay(type) {
+          const displays = {
+            purpose: () => {
+              elements.selectedPurpose.innerHTML = `
+                <i class="fas fa-bullseye mr-2 text-indigo-500"></i>
+                <span>设计目的: ${state.selections.purposeText || '未选择'}</span>
+              `;
+            },
+            industry: () => {
+              elements.selectedIndustry.innerHTML = `
+                <i class="fas fa-building mr-2 text-indigo-500"></i>
+                <span>行业: ${state.selections.industryText || '未选择'}</span>
+              `;
+            },
+            style: () => {
+              elements.selectedStyle.innerHTML = `
+                <i class="fas fa-palette mr-2 text-indigo-500"></i>
+                <span>风格: ${state.selections.style || '未选择'}</span>
+              `;
+            },
+            color: () => {
+              elements.selectedColor.innerHTML = `
+                <i class="fas fa-fill-drip mr-2 text-indigo-500"></i>
+                <span>主题色: ${state.selections.color}</span>
+              `;
+            }
+          };
+
+          if (displays[type]) {
+            displays[type]();
+          }
+        }
+      };
+      
+      // 提示词生成管理器
+      const promptManager = {
+        init() {
+          this.bindEvents();
+        },
+
+        bindEvents() {
+          elements.generatePromptButton.addEventListener('click', () => this.generatePrompt());
+          elements.copyPromptBtn.addEventListener('click', () => this.copyPrompt());
+          elements.additionalDetails.addEventListener('input', (e) => {
+            state.selections.additionalDetails = e.target.value;
+          });
+        },
+
+        async generatePrompt() {
+          // 显示生成中状态
+          elements.generatedPrompt.textContent = 'AI正在努力生成提示词，请稍等...';
+          elements.aiProgressBar.style.width = '0%';
+          elements.aiProgressBar.classList.add('ai-progress-bar');
+
+          // 模拟进度
+          setTimeout(() => {
+            elements.aiProgressBar.style.width = '80%';
+          }, 100);
+
+          try {
+            const prompt = this.buildPrompt();
+            
+            // 模拟AI生成延迟
+            setTimeout(() => {
+              elements.generatedPrompt.textContent = prompt;
+              elements.aiProgressBar.style.width = '100%';
+              elements.aiProgressBar.classList.remove('ai-progress-bar');
+            }, 1500);
+          } catch (error) {
+            elements.generatedPrompt.textContent = '生成提示词时出错，请重试';
+            elements.aiProgressBar.classList.remove('ai-progress-bar');
+            console.error('生成提示词错误:', error);
+          }
+        },
+
+        buildPrompt() {
+          const {
+            purposeText = '网站',
+            industryText = '科技',
+            style = '简约',
+            color = '#6366F1',
+            components = [],
+            additionalDetails = ''
+          } = state.selections;
+
+          const componentsString = components.length > 0
+            ? `包含以下组件：${components.join('、')}。`
+            : '没有特定的组件要求。';
+
+          return `设计一个${purposeText}界面原型，适用于${industryText}行业。
+
+设计风格：采用${style}风格设计
+主题色：${color}
+组件需求：${componentsString}
+${additionalDetails ? `\n额外要求：${additionalDetails}` : ''}
+
+请确保设计：
+1. 现代且专业的视觉效果
+2. 完全响应式布局
+3. 符合最新的用户体验设计规范
+4. 清晰的视觉层次和信息架构
+5. 适当的留白和间距处理`;
+        },
+
+        async copyPrompt() {
+          const promptText = elements.generatedPrompt.textContent;
+          
+          if (!promptText || 
+              promptText === '请点击"生成提示词"按钮来获取您的 UI 设计提示词...' || 
+              promptText === 'AI正在努力生成提示词，请稍等...') {
+            return;
+          }
+
+          try {
+            await navigator.clipboard.writeText(promptText);
+            this.showCopySuccess();
+          } catch (err) {
+            console.error('复制失败:', err);
+            this.showCopyError();
+          }
+        },
+
+        showCopySuccess() {
+          elements.copyStatus.textContent = '复制成功！';
+          elements.copyStatus.classList.add('fade-in-out');
+          elements.copyPromptBtn.classList.add('copy-animation');
+          
+          setTimeout(() => {
+            elements.copyStatus.classList.remove('fade-in-out');
+            elements.copyPromptBtn.classList.remove('copy-animation');
+          }, 1500);
+        },
+
+        showCopyError() {
+          elements.copyStatus.textContent = '复制失败，请手动复制';
+          elements.copyStatus.classList.add('fade-in-out');
+          
+          setTimeout(() => {
+            elements.copyStatus.classList.remove('fade-in-out');
+          }, 1500);
+        }
+      };
+      
+      // 初始化应用
+      function initApp() {
+        themeManager.init();
+        wizardManager.init();
+        componentManager.init();
+        selectionManager.init();
+        promptManager.init();
+      }
+      
+      // 防止重复初始化
+      if (!window.promptGeneratorInitialized) {
+        window.promptGeneratorInitialized = true;
+        initApp();
+      }
+    })();
+</script>
+</body>
+</html>
