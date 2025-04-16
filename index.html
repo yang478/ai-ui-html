@@ -2555,7 +2555,7 @@
                     } else {
                         // 使用基础提示词
                         setTimeout(() => {
-                            elements.generatedPrompt.textContent = basePrompt;
+                            elements.generatedPrompt.textContent = basePrompt + "（使用html+tailwindcss+js输出完整的设计稿效果图）";
                             elements.aiProgressBar.style.width = '100%';
                             elements.aiProgressBar.classList.remove('ai-progress-bar');
                         }, 1500);
