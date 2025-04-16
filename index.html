@@ -1850,7 +1850,12 @@
 
                             <div class="flex justify-between">
                                 <button id="prevStep4" class="btn-secondary px-6 py-3 rounded-md">上一步</button>
-                                <button id="generatePrompt" class="btn-primary px-6 py-3 rounded-md">生成提示词</button>
+                                <button id="generatePrompt" class="btn-primary px-6 py-3 rounded-md flex items-center justify-center">
+                                    <span class="button-text">生成提示词</span>
+                                    <span class="loading-spinner hidden ml-2">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -2482,12 +2487,19 @@
 
         // 提示词生成管理器
         const promptManager = {
+            isGenerating: false,
+            isCopyAnimationRunning: false,
             init() {
                 this.bindEvents();
             },
 
             bindEvents() {
-                elements.generatePromptButton.addEventListener('click', () => this.generatePrompt());
+                elements.generatePromptButton.addEventListener('click', () => {
+                    // 避免重复点击
+                    if (!this.isGenerating) {
+                        this.generatePrompt();
+                    }
+                });
                 elements.copyPromptBtn.addEventListener('click', () => this.copyPrompt());
                 elements.additionalDetails.addEventListener('input', (e) => {
                     state.selections.additionalDetails = e.target.value;
@@ -2495,6 +2507,13 @@
             },
 
             async generatePrompt() {
+
+                // 设置生成状态为true
+                this.isGenerating = true;
+                
+                // 显示按钮loading状态
+                this.toggleButtonLoading(true);
+
                 // 显示生成中状态
                 elements.generatedPrompt.textContent = 'AI正在努力生成提示词，请稍等...';
                 elements.aiProgressBar.style.width = '0%';
@@ -2545,9 +2564,36 @@
                     elements.generatedPrompt.textContent = '生成提示词时出错，请重试';
                     elements.aiProgressBar.classList.remove('ai-progress-bar');
                     console.error('生成提示词错误:', error);
+                } finally {
+                    // 无论成功失败，都恢复按钮状态
+                    setTimeout(() => {
+                        this.toggleButtonLoading(false);
+                        // 恢复生成状态
+                        this.isGenerating = false;
+                    }, 1000); // 稍微延迟恢复，确保用户看到状态变化
                 }
             },
-
+            // 控制按钮loading状态的方法
+            toggleButtonLoading(isLoading) {
+                const buttonText = elements.generatePromptButton.querySelector('.button-text');
+                const loadingSpinner = elements.generatePromptButton.querySelector('.loading-spinner');
+                
+                if (isLoading) {
+                    // 应用禁用样式
+                    elements.generatePromptButton.classList.add('opacity-75', 'cursor-not-allowed');
+                    // 修改按钮文本
+                    buttonText.textContent = '生成中...';
+                    // 显示loading图标
+                    loadingSpinner.classList.remove('hidden');
+                } else {
+                    // 移除禁用样式
+                    elements.generatePromptButton.classList.remove('opacity-75', 'cursor-not-allowed');
+                    // 恢复按钮文本
+                    buttonText.textContent = '生成提示词';
+                    // 隐藏loading图标
+                    loadingSpinner.classList.add('hidden');
+                }
+            },
             async enhancePromptWithOpenAI(basePrompt, settings) {
                 const { apiKey, baseUrl, model } = settings;
                 
@@ -2563,7 +2609,7 @@
                         },
                         { 
                             role: "user", 
-                            content: `请优化以下UI设计提示词，使其更加详细、专业和有指导性：\n\n${basePrompt}`
+                            content: `请优化以下UI设计提示词，使其更加详细、专业和有指导性：\n\n${basePrompt},最后增加"使用html+tailwindcss+js输出完整的设计稿效果图"`
                         }
                     ],
                     temperature: 0.7,
@@ -2633,7 +2679,7 @@
                 document.body.appendChild(toast);
 
                 // 触发动画
-                setTimeout(() => {
+                    setTimeout(() => {
                     toast.classList.remove('translate-y-10', 'opacity-0');
                 }, 10);
 
@@ -2667,6 +2713,19 @@
             },
 
             showCopySuccess() {
+                 // 如果动画正在运行，先强制结束上一次动画
+                 if (this.isCopyAnimationRunning) {
+                    // 先移除类
+                    elements.copyStatus.classList.remove('fade-in-out');
+                    elements.copyPromptBtn.classList.remove('copy-animation');
+                    
+                    // 强制重排以重置动画状态
+                    void elements.copyStatus.offsetWidth;
+                    void elements.copyPromptBtn.offsetWidth;
+                }
+                
+                // 设置动画运行状态
+                this.isCopyAnimationRunning = true;
                 elements.copyStatus.textContent = '复制成功！';
                 elements.copyStatus.classList.add('fade-in-out');
                 elements.copyPromptBtn.classList.add('copy-animation');
@@ -2674,15 +2733,27 @@
                 setTimeout(() => {
                     elements.copyStatus.classList.remove('fade-in-out');
                     elements.copyPromptBtn.classList.remove('copy-animation');
+                    this.isCopyAnimationRunning = false;
                 }, 1500);
             },
 
             showCopyError() {
+                // 如果动画正在运行，先强制结束上一次动画
+                if (this.isCopyAnimationRunning) {
+                    elements.copyStatus.classList.remove('fade-in-out');
+                    void elements.copyStatus.offsetWidth;
+                }
+                
+                // 设置动画运行状态
+                this.isCopyAnimationRunning = true;
+                
+                // 更新错误文本并添加动画类
                 elements.copyStatus.textContent = '复制失败，请手动复制';
                 elements.copyStatus.classList.add('fade-in-out');
 
                 setTimeout(() => {
                     elements.copyStatus.classList.remove('fade-in-out');
+                    this.isCopyAnimationRunning = false;
                 }, 1500);
             }
         };
@@ -2735,7 +2806,7 @@
                 modelSelect.addEventListener('change', () => {
                     if (modelSelect.value === 'custom') {
                         customModelContainer.classList.remove('hidden');
-                    } else {
+                } else {
                         customModelContainer.classList.add('hidden');
                     }
                 });
