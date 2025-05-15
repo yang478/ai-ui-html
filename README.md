@@ -3,7 +3,8 @@
 
 在大佬的基础上新增了一些功能，接入了openai接口的大模型
 原仓库：https://github.com/fenzaiway/ui-html
-**[在线体验 Demo ]([](https://aiuihtml.pages.dev/))** 
+
+**[在线体验 Demo ]([demo](https://aiuihtml.pages.dev/))** 
 ## ✨ 功能特性
 
 *   **引导式生成流程**: 通过四个简单步骤（设计目的 -> 风格选择 -> 颜色与组件 -> 生成提示词）引导用户创建详细的提示词。
