@@ -1,4 +1,4 @@
-在大佬的基础上新增了一些功能，接入了openai接口的大模型
+在大佬的基础上https://github.com/fenzaiway/ui-html新增了一些功能，接入了openai接口的大模型
 
 # AI UI 提示词生成器 Pro (AI UI Prompt Generator Pro)
 一个强大的前端工具，旨在帮助设计师和开发者快速生成高质量、结构化的 UI 设计提示词
@@ -77,5 +77,7 @@
 *   **Unsplash** (风格预览图来源)
 
 
+## 📄 许可证
 
+本项目采用 [MIT 许可证](LICENSE.txt)。
 
