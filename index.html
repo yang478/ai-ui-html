@@ -27,6 +27,7 @@
             --text-primary: #F9FAFB;
             --text-secondary: #D1D5DB;
             --border-color: #4B5563;
+            --placeholder-text-color: rgba(209, 213, 219, 0.6); /* Lighter for dark bg */
         }
 
         :root:not(.dark) {
@@ -36,6 +37,7 @@
             --text-primary: #1F2937;
             --text-secondary: #6B7280;
             --border-color: #E5E7EB;
+            --placeholder-text-color: rgba(107, 114, 128, 0.7); /* Standard for light bg */
         }
 
         body {
@@ -83,10 +85,14 @@
         }
         
         .btn-primary.disabled, .btn-primary:disabled {
-            background-color: #A5B4FC; /* Lighter indigo for disabled state */
+            background-color: #A5B4FC; 
             color: #E0E7FF;
             cursor: not-allowed;
             transform: translateY(0);
+        }
+        .dark .btn-primary.disabled, .dark .btn-primary:disabled {
+            background-color: #4338CA; /* Darker indigo for disabled primary in dark mode */
+            color: #A5B4FC;
         }
 
 
@@ -130,12 +136,17 @@
             filter: brightness(95%);
             transform: translateY(-1px);
         }
-         .btn-secondary.disabled, .btn-secondary:disabled {
+        .btn-secondary.disabled, .btn-secondary:disabled {
             background-color: var(--border-color);
             color: var(--text-secondary);
             opacity: 0.7;
             cursor: not-allowed;
             transform: translateY(0);
+        }
+        .dark .btn-secondary.disabled, .dark .btn-secondary:disabled {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            opacity: 0.5; /* Use overall opacity for disabled secondary in dark mode */
         }
 
 
@@ -144,7 +155,7 @@
             transition: var(--transition-bounce);
             border: 2px solid transparent;
             transform-origin: center bottom;
-            background-color: var(--bg-primary);
+            background-color: var(--bg-primary); /* Changed from bg-primary to bg-secondary for better differentiation */
             color: var(--text-primary);
         }
 
@@ -311,6 +322,19 @@
             background-color: var(--primary-color);
             color: white;
         }
+        .dark .tag {
+             background-color: var(--bg-tertiary); /* Darker base for tags in dark mode */
+             color: var(--text-secondary);
+        }
+        .dark .tag:hover {
+            background-color: var(--primary-dark);
+            color: var(--primary-light);
+        }
+        .dark .tag.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
 
         .industry-tag {
             transition: var(--transition-normal);
@@ -322,6 +346,12 @@
             border-color: var(--primary-color);
             font-weight: 500;
         }
+        .dark .industry-tag.selected {
+            background-color: var(--primary-dark); /* More prominent selection for industry tags */
+            color: var(--primary-light);
+            border-color: var(--primary-color);
+        }
+
 
         .progress-container {
             height: 4px; width: 100%; background-color: var(--bg-tertiary);
@@ -356,16 +386,24 @@
             display: flex; align-items: center; padding: 10px; border-radius: 6px;
             background-color: var(--bg-tertiary); margin-bottom: 8px;
             transition: var(--transition-normal); cursor: pointer; border: 1px solid var(--border-color);
+            color: var(--text-primary); /* Ensure component tag text color is properly themed */
         }
         .component-tag:hover { background-color: var(--bg-secondary); transform: translateX(5px); }
         .component-tag.selected {
             background-color: var(--primary-light); border-color: var(--primary-color); color: var(--primary-dark);
+        }
+        .dark .component-tag.selected {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-color);
+            color: var(--primary-light);
         }
         .component-icon {
             width: 24px; height: 24px; display: flex; align-items: center;
             justify-content: center; margin-right: 10px; color: var(--primary-color);
         }
         .component-tag.selected .component-icon { color: var(--primary-dark); }
+        .dark .component-tag.selected .component-icon { color: var(--primary-light); }
+
 
         input, select, textarea {
             transition: var(--transition-normal); border: 1px solid var(--border-color);
@@ -373,11 +411,15 @@
             border-radius: 0.375rem; /* 6px */
             padding: 0.5rem 0.75rem; /* 8px 12px */
         }
-        input::placeholder, textarea::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        input::placeholder, textarea::placeholder { color: var(--placeholder-text-color); }
+
         input:focus, select:focus, textarea:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px var(--primary-light); /* Softer focus ring */
             outline: none;
+        }
+        .dark input:focus, .dark select:focus, .dark textarea:focus {
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3); /* Dark mode focus ring */
         }
         textarea.generated-prompt-area {
             background-color: var(--bg-tertiary);
@@ -393,13 +435,20 @@
             cursor: default;
             resize: none;
         }
+        textarea.generated-prompt-area.editing { /* Style for when editing is active */
+             background-color: var(--bg-primary) !important;
+             border: 1px solid var(--primary-color) !important;
+        }
 
 
         .component-preview {
             border: 1px dashed var(--border-color); border-radius: 8px; padding: 15px;
             background-color: var(--bg-tertiary); transition: var(--transition-normal); min-height: 150px;
+            color: var(--text-primary); /* Ensure preview text color is themed */
         }
         .component-preview:hover { border-color: var(--primary-color); background-color: var(--primary-light); }
+        .dark .component-preview:hover { background-color: var(--bg-secondary); }
+
 
         .ai-progress-container {
             height: 6px; width: 100%; background-color: var(--bg-tertiary);
@@ -461,6 +510,11 @@
             border-color: var(--primary-color);
             transform: translateY(-1px);
         }
+        .dark .keyword-tag:hover, .dark .custom-keyword-item span:hover {
+             background-color: var(--primary-dark);
+             color: var(--primary-light);
+             border-color: var(--primary-color);
+        }
         .keyword-tag i { margin-right: 6px; }
         .custom-keyword-item button {
             background: none; border: none; color: var(--danger-color); margin-left: 8px; cursor: pointer;
@@ -476,6 +530,7 @@
             cursor: default; 
             transition: background-color 0.2s;
             font-size: 0.875rem;
+            color: var(--text-primary); /* Ensure history text color is themed */
         }
         .history-item:last-child { border-bottom: none; }
         .history-item:hover { background-color: var(--bg-tertiary); }
@@ -505,6 +560,10 @@
             transform: translateY(-3px) scale(1.01);
             box-shadow: 0 0 0 2px var(--primary-light), 0 6px 12px -2px rgba(99, 102, 241, 0.1); /* Using RGB for primary color */
         }
+        .dark .template-option-card:hover, .dark .template-option-card.selected { 
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3), 0 6px 12px -2px rgba(99, 102, 241, 0.1);
+        }
+
         .template-option-card h4 {
             font-weight: 600;
             color: var(--primary-color);
@@ -542,6 +601,7 @@
             max-width: 500px;
             text-align: center;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            color: var(--text-primary); /* Ensure tutorial text is themed */
         }
 
         /* Variation Card Styling */
@@ -570,6 +630,7 @@
             border: 1px solid var(--primary-color); /* Indicate focus */
             padding: 0.25rem; /* Add padding on focus for better editing */
             margin: -1px; /* Adjust for border */
+            background-color: var(--bg-primary); /* Ensure focus background is consistent */
         }
         .variation-card textarea:read-only {
             resize: none;
@@ -597,6 +658,14 @@
             background-color: var(--primary-color);
             color: white;
         }
+         .dark .variation-card .variation-actions button {
+            background-color: var(--primary-dark);
+            color: var(--primary-light);
+        }
+        .dark .variation-card .variation-actions button:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
 
 
         /* Settings Tabs */
@@ -610,6 +679,16 @@
         .settings-tab-content.active {
             display: block;
         }
+
+        /* Ensure all UI text uses theme variables */
+        h1, h2, h3, h4, h5, h6, p, span, label, li, button, select, input, textarea {
+            color: inherit; /* Inherit from body or parent that has var(--text-primary) or var(--text-secondary) */
+        }
+        /* Or more specific if needed, but usually inherit is enough if body is set right */
+        .card p, .card label, .card li { color: var(--text-secondary); }
+        .card h1, .card h2, .card h3 { color: var(--text-primary); }
+        .card .font-medium { color: var(--text-primary); } /* Overrides Tailwind's default if any */
+
 
     </style>
 </head>
@@ -625,7 +704,7 @@
             </div>
             <div class="flex items-center space-x-3">
                 <button id="randomSurpriseBtn" class="p-2 rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-600 transition-colors tooltip" aria-label="随机灵感">
-                    <i class="fas fa-random" aria-hidden="true"></i>
+                    <i class="fas fa-random" aria-hidden="true"></i> <span class="loading-spinner hidden ml-1"><i class="fas fa-spinner fa-spin text-xs" aria-hidden="true"></i></span>
                     <span class="tooltip-text" data-i18n="randomSurpriseTooltip">随机灵感</span>
                 </button>
                 <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors tooltip" aria-label="切换主题">
@@ -633,18 +712,7 @@
                     <i class="fas fa-sun hidden dark:block" aria-hidden="true"></i>
                     <span class="tooltip-text" data-i18n="themeToggleTooltip">切换主题</span>
                 </button>
-                <div class="relative">
-                    <button id="languageSelector" class="px-3 py-2 rounded-md bg-gray-100 dark:bg-gray-700 flex items-center space-x-1 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors tooltip" aria-label="选择界面语言" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-globe text-sm" aria-hidden="true"></i>
-                        <span id="currentDisplayLang">中文</span>
-                        <i class="fas fa-chevron-down text-xs ml-1" aria-hidden="true"></i>
-                        <span class="tooltip-text" data-i18n="languageSelectorTooltip">选择界面语言</span>
-                    </button>
-                    <div id="languageDropdown" class="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-md shadow-lg z-20 hidden py-1" role="menu">
-                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" data-lang="zh-CN" role="menuitem">简体中文</a>
-                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" data-lang="en-US" role="menuitem">English</a>
-                    </div>
-                </div>
+                <!-- Language selector removed as per request for Chinese-only UI -->
                 <button id="settingsButton" class="p-2 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors tooltip" aria-label="设置">
                     <i class="fas fa-cog" aria-hidden="true"></i>
                     <span class="tooltip-text" data-i18n="settingsTooltip">设置</span>
@@ -676,74 +744,74 @@
                                 <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3" aria-hidden="true">1</div>
                                 <span data-i18n="step1Title">设计目的</span>
                             </h2>
-                            <p class="text-gray-600 dark:text-gray-300 mb-6" data-i18n="step1Desc">首先选择您的 UI 设计目的和行业，这将帮助我们为您生成更精准的提示词。</p>
+                            <p class="mb-6" data-i18n="step1Desc">首先选择您的 UI 设计目的和行业，这将帮助我们为您生成更精准的提示词。</p>
 
                             <h3 class="font-medium mb-3" data-i18n="step1PurposeQuestion">您的 UI 用于什么目的？</h3>
                             <div role="group" aria-labelledby="step1PurposeQuestion" class="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6 custom-scrollbar" style="max-height: 300px; overflow-y: auto;">
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="website" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-globe text-3xl text-blue-500" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeWebsite">网站</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeWebsiteDesc">公司官网、产品展示等</p>
+                                    <p class="font-medium" data-i18n="purposeWebsite">网站</p><p class="text-xs mt-1" data-i18n="purposeWebsiteDesc">公司官网、产品展示等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="mobile-app" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-mobile-alt text-3xl text-green-500" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeMobileApp">移动应用</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeMobileAppDesc">iOS、Android 等平台</p>
+                                    <p class="font-medium" data-i18n="purposeMobileApp">移动应用</p><p class="text-xs mt-1" data-i18n="purposeMobileAppDesc">iOS、Android 等平台</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="dashboard" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-chart-line text-3xl text-purple-500" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeDashboard">仪表盘</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeDashboardDesc">数据分析、监控等</p>
+                                    <p class="font-medium" data-i18n="purposeDashboard">仪表盘</p><p class="text-xs mt-1" data-i18n="purposeDashboardDesc">数据分析、监控等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="ecommerce" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-shopping-cart text-3xl text-orange-500" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeEcommerce">电子商务</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeEcommerceDesc">在线商店、购物平台等</p>
+                                    <p class="font-medium" data-i18n="purposeEcommerce">电子商务</p><p class="text-xs mt-1" data-i18n="purposeEcommerceDesc">在线商店、购物平台等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="marketing" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-bullhorn text-3xl text-pink-500" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeMarketing">营销推广</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeMarketingDesc">广告页面、活动推广等</p>
+                                    <p class="font-medium" data-i18n="purposeMarketing">营销推广</p><p class="text-xs mt-1" data-i18n="purposeMarketingDesc">广告页面、活动推广等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="social-media" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-users text-3xl text-blue-400" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeSocial">社交媒体</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeSocialDesc">社交平台、社区应用等</p>
+                                    <p class="font-medium" data-i18n="purposeSocial">社交媒体</p><p class="text-xs mt-1" data-i18n="purposeSocialDesc">社交平台、社区应用等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="education" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-graduation-cap text-3xl text-yellow-600" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeEducation">教育平台</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeEducationDesc">学习系统、在线课堂等</p>
+                                    <p class="font-medium" data-i18n="purposeEducation">教育平台</p><p class="text-xs mt-1" data-i18n="purposeEducationDesc">学习系统、在线课堂等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="productivity" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-tasks text-3xl text-green-600" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeProductivity">生产力工具</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeProductivityDesc">任务管理、协作工具等</p>
+                                    <p class="font-medium" data-i18n="purposeProductivity">生产力工具</p><p class="text-xs mt-1" data-i18n="purposeProductivityDesc">任务管理、协作工具等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="entertainment" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-film text-3xl text-red-600" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeEntertainment">娱乐应用</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeEntertainmentDesc">视频、游戏、音乐等</p>
+                                    <p class="font-medium" data-i18n="purposeEntertainment">娱乐应用</p><p class="text-xs mt-1" data-i18n="purposeEntertainmentDesc">视频、游戏、音乐等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="health" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-heartbeat text-3xl text-red-500" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeHealth">健康应用</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeHealthDesc">健身、医疗监测等</p>
+                                    <p class="font-medium" data-i18n="purposeHealth">健康应用</p><p class="text-xs mt-1" data-i18n="purposeHealthDesc">健身、医疗监测等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="travel" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-plane text-3xl text-cyan-500" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeTravel">旅行服务</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeTravelDesc">旅游规划、预订服务等</p>
+                                    <p class="font-medium" data-i18n="purposeTravel">旅行服务</p><p class="text-xs mt-1" data-i18n="purposeTravelDesc">旅游规划、预订服务等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="finance" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-chart-pie text-3xl text-green-500" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeFinance">金融工具</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeFinanceDesc">投资分析、预算管理等</p>
+                                    <p class="font-medium" data-i18n="purposeFinance">金融工具</p><p class="text-xs mt-1" data-i18n="purposeFinanceDesc">投资分析、预算管理等</p>
                                 </div>
                                 <div class="purpose-card style-card p-4 rounded-xl shadow-sm text-center relative" data-purpose="other" tabindex="0" role="button">
                                     <div class="absolute top-0 right-0 w-5 h-5 rounded-full bg-indigo-500 text-white transform translate-x-1 -translate-y-1 opacity-0 check-mark flex items-center justify-center" aria-hidden="true"><i class="fas fa-check text-xs"></i></div>
                                     <div class="h-12 flex items-center justify-center mb-3"><i class="fas fa-ellipsis-h text-3xl text-gray-500" aria-hidden="true"></i></div>
-                                    <p class="font-medium" data-i18n="purposeOther">其他</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="purposeOtherDesc">自定义目的</p>
+                                    <p class="font-medium" data-i18n="purposeOther">其他</p><p class="text-xs mt-1" data-i18n="purposeOtherDesc">自定义目的</p>
                                 </div>
                             </div>
 
@@ -786,7 +854,7 @@
                                 <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3" aria-hidden="true">2</div>
                                 <span data-i18n="step2Title">风格选择</span>
                             </h2>
-                            <p class="text-gray-600 dark:text-gray-300 mb-6" data-i18n="step2Desc">选择您喜欢的 UI 风格，我们将据此生成更符合您审美的提示词。</p>
+                            <p class="mb-6" data-i18n="step2Desc">选择您喜欢的 UI 风格，我们将据此生成更符合您审美的提示词。</p>
                             
                             <h3 class="font-medium mb-3" id="step2TemplateQuestionHeading" data-i18n="step2TemplateQuestion">或选择一个设计模板作为起点？ (可选)</h3>
                             <div id="templateSelectionContainer" role="group" aria-labelledby="step2TemplateQuestionHeading" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 max-h-60 custom-scrollbar overflow-y-auto pr-2">
@@ -870,7 +938,7 @@
                                 <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3" aria-hidden="true">3</div>
                                 <span data-i18n="step3Title">颜色和组件</span>
                             </h2>
-                            <p class="text-gray-600 dark:text-gray-300 mb-6" data-i18n="step3Desc">选择您喜欢的主题色和需要的 UI 组件，这将帮助我们更好地生成提示词。</p>
+                            <p class="mb-6" data-i18n="step3Desc">选择您喜欢的主题色和需要的 UI 组件，这将帮助我们更好地生成提示词。</p>
 
                             <h3 class="font-medium mb-3" id="step3ColorQuestionHeading" data-i18n="step3ColorQuestion">主题颜色</h3>
                             <div role="group" aria-labelledby="step3ColorQuestionHeading" class="flex flex-wrap items-center gap-3 mb-4">
@@ -1013,19 +1081,19 @@
                                 <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3" aria-hidden="true">4</div>
                                 <span data-i18n="step4Title">生成提示词</span>
                             </h2>
-                            <p class="text-gray-600 dark:text-gray-300 mb-6" data-i18n="step4Desc">根据您的选择，AI 将生成最适合您的 UI 设计提示词。</p>
+                            <p class="mb-6" data-i18n="step4Desc">根据您的选择，AI 将生成最适合您的 UI 设计提示词。</p>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div>
                                     <label for="promptLanguage" class="block font-bold mb-2" data-i18n="promptLanguageLabel">提示词语言:</label>
-                                    <select id="promptLanguage" class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200">
+                                    <select id="promptLanguage" class="w-full p-2 border rounded">
                                         <option value="en" selected data-i18n="langEnglish">English (英文)</option>
                                         <option value="zh" data-i18n="langChinese">中文 (Chinese)</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label for="promptDetailLevel" class="block font-bold mb-2" data-i18n="promptDetailLevelLabel">提示词详细程度:</label>
-                                    <select id="promptDetailLevel" class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200">
+                                    <select id="promptDetailLevel" class="w-full p-2 border rounded">
                                         <option value="concise" data-i18n="detailConcise">简洁</option>
                                         <option value="standard" selected data-i18n="detailStandard">标准</option>
                                         <option value="detailed" data-i18n="detailDetailed">非常详细</option>
@@ -1033,7 +1101,7 @@
                                 </div>
                                 <div>
                                     <label for="aspectRatio" class="block font-bold mb-2" data-i18n="aspectRatioLabel">图片比例/屏幕尺寸:</label>
-                                    <select id="aspectRatio" class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200">
+                                    <select id="aspectRatio" class="w-full p-2 border rounded">
                                         <option value="" data-i18n="aspectRatioDefault">默认/无指定</option>
                                         <option value="16:9" data-i18n="aspectRatio169">16:9 (宽屏)</option>
                                         <option value="9:16" data-i18n="aspectRatio916">9:16 (手机竖屏)</option>
@@ -1061,7 +1129,12 @@
                             </div>
 
                             <div class="mb-4">
-                                <h4 class="font-medium mb-2" data-i18n="keywordsTitle">常用关键词 (点击添加):</h4>
+                                <h4 class="font-medium mb-1" data-i18n="suggestedKeywordsTitle">建议关键词:</h4>
+                                <div id="suggestedKeywordsContainer" class="flex flex-wrap gap-2 mb-3">
+                                     <!-- Suggested Keywords will be populated by JS -->
+                                     <p class="text-xs italic" data-i18n="noSuggestedKeywords">根据您的选择，这里会显示相关建议。</p>
+                                </div>
+                                <h4 class="font-medium mb-1" data-i18n="keywordsTitle">常用关键词 (点击添加):</h4>
                                 <div id="keywordSnippetsContainer" class="flex flex-wrap gap-2">
                                     <!-- Keywords will be populated by JS -->
                                 </div>
@@ -1085,7 +1158,7 @@
                                         <span id="copyStatus" class="absolute top-2 right-12 text-green-500 text-sm font-medium opacity-0 transition-opacity" aria-live="polite"></span>
                                     </div>
                                 </div>
-                                <textarea id="generatedPrompt" class="w-full p-4 rounded-md generated-prompt-area custom-scrollbar" readonly aria-live="polite"><span data-i18n="clickGeneratePrompt">请点击"生成提示词"按钮来获取您的 UI 设计提示词...</span></textarea>
+                                <textarea id="generatedPrompt" class="w-full p-4 rounded-md generated-prompt-area custom-scrollbar" readonly aria-live="polite"></textarea>
                             </div>
                             
                             <div class="mb-4">
@@ -1167,7 +1240,7 @@
                         <input type="text" id="historySearchInput" class="w-full p-2 border rounded text-sm" data-i18n-placeholder="searchHistoryPlaceholder" placeholder="搜索历史记录..." aria-label="搜索历史记录">
                     </div>
                     <div id="promptHistoryContainer" class="max-h-60 overflow-y-auto custom-scrollbar space-y-1" aria-live="polite">
-                        <p class="text-sm text-gray-500 text-center py-4" data-i18n="noHistory">暂无历史记录</p>
+                        <p class="text-sm text-center py-4" data-i18n="noHistory">暂无历史记录</p>
                     </div>
                 </section>
 
@@ -1186,7 +1259,7 @@
             </aside>
         </div>
 
-        <footer class="text-center mt-12 text-gray-500 dark:text-gray-400 text-sm">
+        <footer class="text-center mt-12 text-sm">
             &copy; <span id="currentYear">2024</span> <span data-i18n="footerText">AI UI 提示词生成器 Pro. </span>
             <button id="exportConfigBtn" class="ml-2 text-indigo-500 hover:underline" data-i18n="exportConfigButton">导出配置</button> |
             <label for="importConfigFile" class="ml-1 text-indigo-500 hover:underline cursor-pointer" data-i18n="importConfigButton">导入配置</label>
@@ -1197,12 +1270,12 @@
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitleHeading">
         <div class="modal p-0 custom-scrollbar"> <!-- p-0 to allow full-width tabs -->
-            <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-center p-6 border-b">
                 <h3 id="settingsModalTitleHeading" class="text-xl font-bold" data-i18n="settingsModalTitle">设置</h3>
                 <button id="closeSettingsModal" class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 transition-colors" aria-label="关闭设置"><i class="fas fa-times text-xl" aria-hidden="true"></i></button>
             </div>
 
-            <div class="settings-tabs flex border-b border-gray-200 dark:border-gray-700 px-6" role="tablist">
+            <div class="settings-tabs flex px-6" role="tablist">
                 <button class="settings-tab-button tab-button py-3 px-4 text-sm font-medium active" data-tab="openaiSettingsTab" data-i18n="openaiSettingsTabTitle" role="tab" aria-controls="openaiSettingsTab" aria-selected="true">OpenAI</button>
                 <button class="settings-tab-button tab-button py-3 px-4 text-sm font-medium" data-tab="customKeywordsTab" data-i18n="customKeywordsTabTitle" role="tab" aria-controls="customKeywordsTab" aria-selected="false">自定义关键词</button>
             </div>
@@ -1213,12 +1286,12 @@
                     <div class="setting-item p-3 rounded-lg">
                         <label for="apiKey" class="block text-sm font-medium mb-1" data-i18n="apiKeyLabel">API Key</label>
                         <div class="input-container"><input type="password" id="apiKey" class="w-full p-2 border rounded" placeholder="sk-********" aria-describedby="apiKeyDesc"><i class="fas fa-key input-icon" aria-hidden="true"></i></div>
-                        <p id="apiKeyDesc" class="text-xs text-gray-500 mt-1" data-i18n="apiKeyDesc">您的 API 密钥将安全地存储在本地浏览器中。</p>
+                        <p id="apiKeyDesc" class="text-xs mt-1" data-i18n="apiKeyDesc">您的 API 密钥将安全地存储在本地浏览器中。</p>
                     </div>
                     <div class="setting-item p-3 rounded-lg">
                         <label for="baseUrl" class="block text-sm font-medium mb-1" data-i18n="baseUrlLabel">Base URL (可选)</label>
                         <div class="input-container"><input type="text" id="baseUrl" class="w-full p-2 border rounded" placeholder="https://api.openai.com/v1" aria-describedby="baseUrlDesc"><i class="fas fa-link input-icon" aria-hidden="true"></i></div>
-                        <p id="baseUrlDesc" class="text-xs text-gray-500 mt-1" data-i18n="baseUrlDesc">自定义 API 端点。如果留空，将使用 OpenAI 官方地址。通常以 /v1 结尾。</p>
+                        <p id="baseUrlDesc" class="text-xs mt-1" data-i18n="baseUrlDesc">自定义 API 端点。如果留空，将使用 OpenAI 官方地址。通常以 /v1 结尾。</p>
                     </div>
                     <div class="setting-item p-3 rounded-lg">
                         <label for="modelSelect" class="block text-sm font-medium mb-1" data-i18n="modelLabel">模型</label>
@@ -1253,13 +1326,13 @@
                     <div>
                         <h4 class="text-sm font-medium mb-2" data-i18n="myKeywordsLabel">我的关键词:</h4>
                         <div id="customKeywordsList" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar p-1" aria-live="polite">
-                            <p class="text-xs text-gray-500" data-i18n="noCustomKeywords">暂无自定义关键词。</p>
+                            <p class="text-xs" data-i18n="noCustomKeywords">暂无自定义关键词。</p>
                         </div>
                     </div>
                 </section>
             </div>
 
-            <div class="mt-6 p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+            <div class="mt-6 p-6 border-t flex justify-end space-x-3">
                 <button id="resetSettings" class="btn-secondary px-4 py-2 rounded-md" data-i18n="resetButton">重置</button>
                 <button id="saveSettings" class="btn-primary px-4 py-2 rounded-md" data-i18n="saveButton">保存</button>
             </div>
@@ -1278,14 +1351,11 @@
 </body>
 <!-- JavaScript -->
 <script>
-    // AI UI Prompt Generator Pro - v1.2 (Final Polish)
+    // AI UI Prompt Generator Pro - v1.3 (Chinese UI, AI Surprise, Smart Keywords, Detail Levels)
     (function () {
         // --- Elements Cache ---
         const elements = {
             themeToggle: document.getElementById('themeToggle'),
-            languageSelector: document.getElementById('languageSelector'),
-            currentDisplayLang: document.getElementById('currentDisplayLang'),
-            languageDropdown: document.getElementById('languageDropdown'),
             settingsButton: document.getElementById('settingsButton'),
             showHelpButton: document.getElementById('showHelpButton'),
             randomSurpriseBtn: document.getElementById('randomSurpriseBtn'),
@@ -1333,6 +1403,7 @@
             customAspectRatioInput: document.getElementById('customAspectRatioInput'),
             additionalDetails: document.getElementById('additionalDetails'),
             negativePrompt: document.getElementById('negativePrompt'),
+            suggestedKeywordsContainer: document.getElementById('suggestedKeywordsContainer'),
             keywordSnippetsContainer: document.getElementById('keywordSnippetsContainer'),
             aiProgressBar: document.getElementById('aiProgressBar'),
             generatedPrompt: document.getElementById('generatedPrompt'), 
@@ -1386,7 +1457,7 @@
 
         // --- State Management ---
         const state = {
-            uiLanguage: localStorage.getItem('uiLanguage') || 'zh-CN',
+            uiLanguage: 'zh-CN', // Hardcoded to Chinese
             theme: localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
             currentStep: 1,
             promptLanguage: 'en',
@@ -1404,12 +1475,13 @@
                 templateId: null,
             },
             isGeneratingPrompt: false,
+            isAISurpriseInProgress: false,
             isEditingPrompt: false,
             isCopyAnimationRunning: false,
-            promptHistory: JSON.parse(localStorage.getItem('promptHistory_v1.2')) || [], 
-            customKeywords: JSON.parse(localStorage.getItem('customKeywords_v1.2')) || [], 
-            hasSeenTutorial: localStorage.getItem('hasSeenTutorial_v1.2') === 'true', 
-            variationCardStates: {}, // To store edit state for each variation card { cardId: { isEditing: false } }
+            promptHistory: JSON.parse(localStorage.getItem('promptHistory_v1.3')) || [], 
+            customKeywords: JSON.parse(localStorage.getItem('customKeywords_v1.3')) || [], 
+            hasSeenTutorial: localStorage.getItem('hasSeenTutorial_v1.3') === 'true', 
+            variationCardStates: {}, 
         };
         
         // --- Data Definitions ---
@@ -1432,117 +1504,30 @@
             { id: 'futuristic', textKey: 'keywordFuturistic', icon: 'fas fa-rocket' },
         ];
 
-        // --- Localization (i18n) ---
-        const i18nData = {
-            'en-US': {
-                appTitle: "AI UI Prompt Generator Pro",
-                randomSurpriseTooltip: "Random Inspiration",
-                themeToggleTooltip: "Toggle Theme",
-                languageSelectorTooltip: "Select UI Language",
-                settingsTooltip: "Settings", 
-                helpTooltip: "Help/Tutorial",
-                step1Title: "Design Purpose",
-                step1Desc: "First, choose your UI design purpose and industry. This will help us generate more accurate prompts for you.",
-                step1PurposeQuestion: "What is your UI for?",
-                purposeWebsite: "Website", purposeWebsiteDesc: "Corporate sites, product showcases, etc.",
-                purposeMobileApp: "Mobile App", purposeMobileAppDesc: "iOS, Android platforms, etc.",
-                purposeDashboard: "Dashboard", purposeDashboardDesc: "Data analysis, monitoring, etc.",
-                purposeEcommerce: "E-commerce", purposeEcommerceDesc: "Online stores, shopping platforms, etc.",
-                purposeMarketing: "Marketing", purposeMarketingDesc: "Landing pages, promotional events, etc.",
-                purposeSocial: "Social Media", purposeSocialDesc: "Social platforms, community apps, etc.",
-                purposeEducation: "Education Platform", purposeEducationDesc: "Learning systems, online classrooms, etc.",
-                purposeProductivity: "Productivity Tool", purposeProductivityDesc: "Task management, collaboration tools, etc.",
-                purposeEntertainment: "Entertainment App", purposeEntertainmentDesc: "Video, games, music, etc.",
-                purposeHealth: "Health App", purposeHealthDesc: "Fitness, medical monitoring, etc.",
-                purposeTravel: "Travel Service", purposeTravelDesc: "Travel planning, booking services, etc.",
-                purposeFinance: "Financial Tool", purposeFinanceDesc: "Investment analysis, budget management, etc.",
-                purposeOther: "Other", purposeOtherDesc: "Custom purpose",
-                step1IndustryQuestion: "Select Industry Domain",
-                industryTech: "Tech", industryFinance: "Finance", industryHealthcare: "Healthcare", industryEducation: "Education", industryEntertainment: "Entertainment", industryFood: "Food & Beverage", industryTravel: "Travel & Hospitality", industryRealEstate: "Real Estate", industryFashion: "Fashion & Apparel", industryRetail: "Retail", industryManufacturing: "Manufacturing", industryTransportation: "Transportation", industryEnergy: "Energy", industryAgriculture: "Agriculture", industryConstruction: "Construction", industryMedia: "Media", industrySports: "Sports", industryGaming: "Gaming", industryAutomotive: "Automotive", industryLegal: "Legal", industryGovernment: "Government", industryNonprofit: "Non-profit", industryArt: "Art & Culture", industryOther: "Other",
-                nextButton: "Next", prevButton: "Previous", applyButton: "Apply", editButton: "Edit", saveButton: "Save", addButton: "Add", removeButton: "Remove",
-                step2Title: "Style Selection",
-                step2Desc: "Choose your preferred UI style. We'll generate prompts that better match your aesthetic.",
-                step2TemplateQuestion: "Or choose a design template to start? (Optional)",
-                step2StyleQuestion: "Select Design Style",
-                styleMinimalist: "Minimalist", styleModern: "Modern", styleRetro: "Retro", styleCartoon: "Cartoon", styleTech: "Tech", styleHandDrawn: "Hand-drawn", styleUltraMinimalist: "Ultra Minimal", styleFlat: "Flat Design", styleSkeuomorphic: "Skeuomorphic", styleNeumorphic: "Neumorphic", styleFuturistic: "Futuristic", styleInkWash: "Ink Wash",
-                step3Title: "Color & Components",
-                step3Desc: "Select your theme color and required UI components to help us generate better prompts.",
-                step3ColorQuestion: "Theme Color",
-                step3ComponentQuestion: "Select Required UI Components",
-                searchComponentsPlaceholder: "Search components...",
-                categoryAll: "All", categoryNav: "Navigation", categoryContent: "Content", categoryInteraction: "Interaction", categoryData: "Data", categoryMobile: "Mobile", categoryDialog: "Dialogs",
-                componentNavbar: "Navigation Bar", componentSearchBox: "Search Box", componentBreadcrumbs: "Breadcrumbs", componentSidenav: "Side Navigation", componentNavCard: "Navigation Card", componentBackToTop: "Back to Top",
-                componentHero: "Hero Section", componentContentBlock: "Content Block", componentGallery: "Image Gallery", componentCarousel: "Carousel/Slider", componentVideoPlayer: "Video Player", componentTestimonials: "Testimonials", componentTeam: "Team Members", componentProductDisplay: "Product Display", componentBlogPost: "Blog Post", componentFaq: "FAQ Accordion", componentCodeDisplay: "Code Display",
-                componentContactForm: "Contact Form", componentComments: "Comment Section", componentSocialShare: "Social Share", componentFab: "Floating Action Button", componentSubscribe: "Subscription Form", componentShoppingCart: "Shopping Cart", componentFilters: "Filters", componentLangSwitcher: "Language Switcher", componentCookieConsent: "Cookie Consent",
-                componentDataTable: "Data Table", componentCharts: "Charts/Graphs", componentMap: "Map Integration", componentCalendar: "Event Calendar", componentStatsCard: "Statistics Card", componentTagCloud: "Tag Cloud", componentProgressIndicator: "Progress Indicator",
-                componentBottomNav: "Bottom Navigation (Mobile)", componentMobilePayment: "Mobile Payment", componentBiometric: "Biometric Login", componentSwipeActions: "Swipe Actions", componentPullToRefresh: "Pull to Refresh", componentGeolocation: "Geolocation", componentQrcode: "QR Code Scanner", componentGestures: "Gesture Hints", componentResponsiveMenu: "Responsive Menu",
-                componentModal: "Modal Dialog", componentAlertDialog: "Alert Dialog", componentConfirmDialog: "Confirmation Dialog", componentNotification: "Notification Popup", componentLoginDialog: "Login Dialog", componentQuickBuy: "Quick Buy Popup", componentShareDialog: "Share Dialog", componentImageViewer: "Image Viewer", componentDatePicker: "Date Picker", componentFilterDialog: "Filter Dialog", componentFullscreenSearch: "Fullscreen Search", componentLoadingDialog: "Loading Dialog",
-                step4Title: "Generate Prompt",
-                step4Desc: "Based on your selections, AI will generate the most suitable UI design prompt for you.",
-                promptLanguageLabel: "Prompt Language:", langEnglish: "English", langChinese: "Chinese (中文)",
-                promptDetailLevelLabel: "Prompt Detail Level:", detailConcise: "Concise", detailStandard: "Standard", detailDetailed: "Very Detailed",
-                aspectRatioLabel: "Aspect Ratio/Screen Size:", aspectRatioDefault: "Default/None", aspectRatio169: "16:9 (Widescreen)", aspectRatio916: "9:16 (Mobile Portrait)", aspectRatio11: "1:1 (Square)", aspectRatio43: "4:3 (Standard)", aspectRatio32: "3:2", aspectRatio219: "21:9 (Ultrawide)", aspectRatioCustom: "Custom",
-                customAspectRatioLabel: "Custom Ratio (e.g., 1920x1080):", customAspectRatioPlaceholder: "e.g., 1024x768",
-                additionalDetailsLabel: "More Details (Optional):", additionalDetailsPlaceholder: "e.g., dark mode, animations, specific mood",
-                negativePromptLabel: "Negative Prompt (Content to avoid, Optional):", negativePromptPlaceholder: "e.g., blurry, text, ugly, low quality",
-                keywordsTitle: "Common Keywords (Click to add):",
-                generatedPromptLabel: "Generated Prompt:",
-                clickGeneratePrompt: "Click the 'Generate Prompt' button to get your UI design prompt...",
-                copyTooltip: "Copy Prompt",
-                shareTooltip: "Share Prompt (Coming Soon)",
-                generateButton: "Generate Prompt",
-                generateVariationsButton: "Generate Variations",
-                generateVariationsFromEditedButton: "Variations from Edited",
-                numVariationsLabel: "Number of Variations:", variationDegreeLabel: "Variation Difference:",
-                variationDegreeSubtle: "Subtle Adjustments", variationDegreeCreative: "Creative Exploration", variationDegreeDiverse: "Diverse Ideas",
-                currentSelectionTitle: "Current Selections",
-                selectedPurposePrefix: "Purpose: ", selectedIndustryPrefix: "Industry: ", selectedStylePrefix: "Style: ", selectedColorPrefix: "Theme Color: ", selectedComponentsPrefix: "Selected Components: ", notSelected: "Not Selected", countUnit: " item(s)",
-                componentPreviewTitle: "UI Component Preview",
-                previewPlaceholderText: "Preview will appear here after selecting components",
-                historyTitle: "Prompt History", clearHistoryButton: "Clear History", noHistory: "No history yet.", searchHistoryPlaceholder: "Search history...",
-                tipsTitle: "Tips & Tricks",
-                tip1: "Choose a clear design purpose and industry.",
-                tip2: "Experiment with different style and color combinations.",
-                tip3: "Provide specific requirements in 'More Details', like brand tone, target audience.",
-                tip4: "Use keyword snippets to quickly add common modifiers.",
-                tip5: "Detailed and specific prompts yield better UI generation results with AI.",
-                tip6: "Use negative prompts to exclude unwanted content.",
-                tip7: "Specify aspect ratio for better composition control.",
-                footerText: "AI UI Prompt Generator Pro.",
-                exportConfigButton: "Export Config", importConfigButton: "Import Config",
-                settingsModalTitle: "Settings", 
-                openaiSettingsTabTitle: "OpenAI", customKeywordsTabTitle: "Custom Keywords",
-                apiKeyLabel: "API Key", apiKeyDesc: "Your API key is stored securely in your local browser.",
-                baseUrlLabel: "Base URL (Optional)", baseUrlDesc: "Custom API endpoint. Defaults to OpenAI official if empty. Usually ends with /v1.",
-                modelLabel: "Model", modelGpt4o: "GPT-4o (Recommended)", modelGpt4Turbo: "GPT-4 Turbo", modelGpt35Turbo: "GPT-3.5 Turbo", modelClaude35: "Claude 3.5 Sonnet", modelDeepseek: "DeepSeek Chat", modelCustom: "Custom Model",
-                customModelNameLabel: "Custom Model Name",
-                newCustomKeywordLabel: "Add New Keyword:", newCustomKeywordPlaceholder: "e.g., Cyberpunk style", myKeywordsLabel: "My Keywords:", noCustomKeywords: "No custom keywords yet.",
-                resetButton: "Reset",
-                welcomeTitle: "Welcome to AI UI Prompt Generator Pro!",
-                welcomeDesc: "Generate professional UI design prompts in just a few simple steps. Click the button below to start your design journey, or click the <i class='fas fa-question-circle'></i> icon in the top right for help anytime.",
-                startTourButton: "Get Started",
-                saving: "Saving...", settingsSaved: "Settings saved!", settingsReset: "Settings reset to default.", apiKeyRequiredForModels: "API Key required to fetch models.", modelsFetched: "Model list updated.", invalidModelData: "Invalid model data received.", fetchModelsError: "Error fetching models",
-                generatingButton: "Generating...", generatingPromptText: "AI is working hard to generate your prompt, please wait...", enhancingPromptText: "Connecting to AI service to enhance prompt...", generatingBasePromptText: "Generating base prompt...", promptEnhancedByAI: "Prompt enhanced by AI!", aiEnhancementFailed: "AI enhancement failed", apiKeyNotConfiguredBasePrompt: "API Key not configured, using base prompt.", invalidApiResponse: "Invalid API response format.", nothingToCopy: "Nothing to copy.", copySuccess: "Copied!", copyFailStatus: "Copy failed!",
-                templateApplied: "Template applied!", keywordAlreadyAdded: "Keyword already added.", customKeywordAdded: "Custom keyword added.", customKeywordRemoved: "Custom keyword removed.", customKeywordExists: "This custom keyword already exists.",
-                confirmClearHistory: "Are you sure you want to clear all history?", historyCleared: "History cleared.", historyLoaded: "Loaded from history.", loadTooltip: "Load", promptCopied: "Prompt copied!", copyFailed: "Copy failed.",
-                configExported: "Configuration exported!", configImported: "Configuration imported successfully!", configImportError: "Error importing config", invalidConfigFile: "Invalid configuration file.",
-                randomSetupGenerated: "Random setup generated! Feel free to adjust.",
-                variationsGenerated: "Prompt variations generated!", errorGeneratingVariations: "Error generating variations.",
-                generateMainPromptFirst: "Please generate the main prompt first.", generatingVariationsText: "Generating variations...", noVariationsGenerated: "Could not generate variations.",
-                promptEditingActive: "Prompt editing active. Click 'Save' or 'Cancel Edit'.", promptSaved: "Prompt saved.",
-                templateLoginModernName: "Modern Login Page", templateLoginModernDesc: "A sleek, modern login/signup form.", templateLoginModernDetails: "Focus on clarity and ease of use, with social login options.",
-                templateEcomProductName: "E-commerce Product Page", templateEcomProductDesc: "Clean product display for an online store.", templateEcomProductDetails: "Highlight product images, clear call-to-action, customer reviews section.",
-                templateDashboardDarkName: "Dark Themed Dashboard", templateDashboardDarkDesc: "Data-rich dashboard interface with a dark theme.", templateDashboardDarkDetails: "Include various charts, a data table, and a side navigation menu. Use glowing accents for important data points.",
-                keywordDarkMode: "Dark Mode", keywordLightMode: "Light Mode", keywordGlassmorphism: "Glassmorphism", keywordNeumorphism: "Neumorphism",
-                keyword3DIcons: "3D Icons", keywordGradients: "Gradients", keywordAnimations: "Subtle Animations", keywordPlayful: "Playful Vibe",
-                keywordProfessional: "Professional Look", keywordFuturistic: "Futuristic Theme",
-                errorOpenAI: "OpenAI API Error", errorNetwork: "Network Error", errorUnknown: "An unknown error occurred", invalidColorFormat: "Invalid color format.",
+        const SMART_KEYWORD_MAPPINGS = {
+            purpose: {
+                'mobile-app': [{ id: 'responsiveDesign', text: '响应式设计', icon: 'fas fa-mobile-alt' }, { id: 'gestures', text: '手势操作', icon: 'fas fa-hand-point-up' }],
+                'ecommerce': [{ id: 'conversion', text: '转化优化', icon: 'fas fa-dollar-sign' }, { id: 'productShowcase', text: '产品展示聚焦', icon: 'fas fa-shopping-bag' }],
+                'dashboard': [{ id: 'dataVisualization', text: '数据可视化', icon: 'fas fa-chart-bar' }, { id: 'kpiFocus', text: '关键指标突出', icon: 'fas fa-tachometer-alt' }],
             },
+            industry: {
+                'finance': [{ id: 'fintech', text: '金融科技感', icon: 'fas fa-piggy-bank' }, { id: 'dataSecurity', text: '数据安全感', icon: 'fas fa-shield-alt' }],
+                'healthcare': [{ id: 'easyAccess', text: '易用性', icon: 'fab fa-accessible-icon' }, { id: 'caringTone', text: '关怀氛围', icon: 'fas fa-heart' }],
+                'education': [{ id: 'interactiveLearning', text: '互动学习', icon: 'fas fa-chalkboard-teacher' }, { id: 'knowledgeGraph', text: '知识图谱', icon: 'fas fa-project-diagram' }],
+            },
+            style: {
+                '简约': [{ id: 'whitespace', text: '大量留白', icon: 'fas fa-square' }, { id: 'clearTypography', text: '清晰排版', icon: 'fas fa-font' }],
+                '科技': [{ id: 'glowingEffects', text: '发光效果', icon: 'fas fa-lightbulb' }, { id: 'abstractShapes', text: '抽象几何', icon: 'fas fa-shapes' }],
+                '复古': [{ id: 'vintageTexture', text: '复古纹理', icon: 'fas fa-brush' }, { id: 'classicFont', text: '经典字体', icon: 'fas fa-pen-fancy' }],
+            }
+        };
+
+        // --- Localization (i18n) - Simplified for Chinese only ---
+        const i18nData = {
             'zh-CN': {
                 appTitle: "AI UI 提示词生成器 Pro",
-                randomSurpriseTooltip: "随机灵感",
+                randomSurpriseTooltip: "随机灵感（AI驱动需配置Key）",
                 themeToggleTooltip: "切换主题",
-                languageSelectorTooltip: "选择界面语言",
                 settingsTooltip: "设置", 
                 helpTooltip: "帮助/教程",
                 step1Title: "设计目的",
@@ -1589,6 +1574,7 @@
                 customAspectRatioLabel: "自定义比例 (如 1920x1080):", customAspectRatioPlaceholder: "例如: 1024x768",
                 additionalDetailsLabel: "更多细节 (可选):", additionalDetailsPlaceholder: "例如：深色模式、动画效果、特定情感氛围等",
                 negativePromptLabel: "反向提示词 (不希望出现的内容, 可选):", negativePromptPlaceholder: "例如：模糊、文字、丑陋、低质量",
+                suggestedKeywordsTitle: "建议关键词:", noSuggestedKeywords: "根据您的选择，这里会显示相关建议。",
                 keywordsTitle: "常用关键词 (点击添加):",
                 generatedPromptLabel: "生成的提示词:",
                 clickGeneratePrompt: "请点击\"生成提示词\"按钮来获取您的 UI 设计提示词...",
@@ -1631,6 +1617,7 @@
                 confirmClearHistory: "确定要清空所有历史记录吗？", historyCleared: "历史记录已清空。", historyLoaded: "已从历史记录加载。", loadTooltip: "加载", promptCopied: "提示词已复制!", copyFailed: "复制失败。",
                 configExported: "配置已导出!", configImported: "配置导入成功!", configImportError: "导入配置错误", invalidConfigFile: "无效的配置文件。",
                 randomSetupGenerated: "随机配置已生成！请随意调整。",
+                aiRandomSetupGenerated: "AI随机灵感已生成！", aiRandomSetupFailed: "AI随机灵感生成失败，已使用本地随机。",
                 variationsGenerated: "提示词变体已生成！", errorGeneratingVariations: "生成变体时出错。",
                 generateMainPromptFirst: "请先生成主提示词。", generatingVariationsText: "正在生成变体...", noVariationsGenerated: "未能生成变体。",
                 promptEditingActive: "提示词编辑中，点击“保存”或“取消编辑”。", promptSaved: "提示词已保存。",
@@ -1641,47 +1628,34 @@
                 keyword3DIcons: "3D图标", keywordGradients: "渐变色", keywordAnimations: "微妙动画", keywordPlayful: "俏皮氛围",
                 keywordProfessional: "专业外观", keywordFuturistic: "未来主题",
                 errorOpenAI: "OpenAI API 错误", errorNetwork: "网络错误", errorUnknown: "发生未知错误", invalidColorFormat: "无效的颜色格式。",
+                keywordResponsiveDesign: "响应式设计", keywordGestures: "手势操作", keywordConversion: "转化优化", keywordProductShowcase: "产品展示聚焦",
+                keywordDataVisualization: "数据可视化", keywordKpiFocus: "关键指标突出", keywordFintech: "金融科技感", keywordDataSecurity: "数据安全感",
+                keywordEasyAccess: "易用性", keywordCaringTone: "关怀氛围", keywordInteractiveLearning: "互动学习", keywordKnowledgeGraph: "知识图谱",
+                keywordWhitespace: "大量留白", keywordClearTypography: "清晰排版", keywordGlowingEffects: "发光效果", keywordAbstractShapes: "抽象几何",
+                keywordVintageTexture: "复古纹理", keywordClassicFont: "经典字体",
             }
         };
 
         const i18nManager = {
             init() {
                 this.setLanguage(state.uiLanguage);
-                elements.languageDropdown.querySelectorAll('a').forEach(a => {
-                    a.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const lang = e.target.dataset.lang;
-                        this.setLanguage(lang);
-                        elements.languageDropdown.classList.add('hidden');
-                    });
-                });
-                elements.languageSelector.addEventListener('click', () => {
-                    const isHidden = elements.languageDropdown.classList.toggle('hidden');
-                    elements.languageSelector.setAttribute('aria-expanded', !isHidden);
-                });
-                document.addEventListener('click', (e) => { 
-                    if (!elements.languageSelector.contains(e.target) && !elements.languageDropdown.contains(e.target)) {
-                        elements.languageDropdown.classList.add('hidden');
-                        elements.languageSelector.setAttribute('aria-expanded', 'false');
-                    }
-                });
+                // No language selector needed as UI is Chinese only
             },
             setLanguage(lang) {
-                state.uiLanguage = lang;
-                localStorage.setItem('uiLanguage', lang);
-                elements.currentDisplayLang.textContent = lang === 'en-US' ? 'English' : '中文';
-                document.documentElement.lang = lang.startsWith('zh') ? 'zh-CN' : 'en';
+                state.uiLanguage = lang; // Should always be 'zh-CN'
+                document.documentElement.lang = 'zh-CN';
 
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     const key = el.dataset.i18n;
-                    const translation = (i18nData[lang] && i18nData[lang][key]) || (i18nData['en-US'] && i18nData['en-US'][key]) || el.innerHTML;
+                    const translation = (i18nData[lang] && i18nData[lang][key]) || el.innerHTML; // Fallback to existing HTML content if key not found
                     el.innerHTML = translation; 
                 });
                  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                     const key = el.dataset.i18nPlaceholder;
-                    const placeholderText = (i18nData[lang] && i18nData[lang][key]) || (i18nData['en-US'] && i18nData['en-US'][key]) || el.placeholder;
+                    const placeholderText = (i18nData[lang] && i18nData[lang][key]) || el.placeholder;
                     el.placeholder = placeholderText;
                 });
+                // Ensure dynamic content is also updated
                 historyManager.renderHistory(); 
                 templateManager.renderTemplates(); 
                 keywordManager.renderKeywords(); 
@@ -1689,9 +1663,7 @@
                 selectionManager.updateAllDisplays(); 
             },
             t(key, fallback = '') { 
-                return (i18nData[state.uiLanguage] && i18nData[state.uiLanguage][key]) || 
-                       (i18nData['en-US'] && i18nData['en-US'][key]) || 
-                       fallback || key;
+                return (i18nData[state.uiLanguage] && i18nData[state.uiLanguage][key]) || fallback || key;
             }
         };
         
@@ -1803,6 +1775,9 @@
                 this.updateProgress(step);
                 state.currentStep = step;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (step === 4) { // When moving to step 4, update keywords
+                    keywordManager.renderKeywords();
+                }
             },
             updateProgress(step) {
                 const progressPercentage = ((step - 1) / (elements.stepIndicators.length - 1)) * 100;
@@ -1870,6 +1845,7 @@
                 state.selections.purpose = card.dataset.purpose;
                 state.selections.purposeText = card.querySelector('p.font-medium').textContent.trim();
                 this.updateSelectionDisplay('purpose');
+                if (state.currentStep === 4) keywordManager.renderKeywords();
             },
             handleStyleSelection(card) {
                 elements.styleCards.forEach(c => { c.classList.remove('selected'); c.setAttribute('aria-pressed', 'false'); });
@@ -1877,6 +1853,7 @@
                 card.setAttribute('aria-pressed', 'true');
                 state.selections.style = card.dataset.style;
                 this.updateSelectionDisplay('style');
+                if (state.currentStep === 4) keywordManager.renderKeywords();
             },
             handleIndustrySelection(tag) {
                 elements.industryTags.forEach(t => { t.classList.remove('selected'); t.setAttribute('aria-pressed', 'false'); });
@@ -1885,6 +1862,7 @@
                 state.selections.industry = tag.dataset.industry;
                 state.selections.industryText = tag.textContent.trim();
                 this.updateSelectionDisplay('industry');
+                if (state.currentStep === 4) keywordManager.renderKeywords();
             },
             handleColorSelection(swatch) {
                 elements.colorSwatches.forEach(s => { s.classList.remove('selected'); s.setAttribute('aria-pressed', 'false'); });
@@ -1938,6 +1916,7 @@
                 componentManager.updateComponentPreview();
                 templateManager.clearTemplateSelectionVisuals();
                 promptManager.toggleEditPrompt(false); 
+                keywordManager.renderKeywords(); // Update keywords after reset
             }
         };
 
@@ -1946,6 +1925,16 @@
             init() {
                 this.bindEvents();
                 this.filterComponents();
+                 // Populate map from i18n keys for AI Surprise
+                this.componentIdToNameMap = {};
+                this.componentNameToIdMap = {};
+                elements.componentTagsElements.forEach(tag => {
+                    const id = tag.dataset.componentId;
+                    const nameKey = `component${id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, '')}`; // e.g. navbar -> componentNavbar
+                    const name = i18nManager.t(nameKey, id); // fallback to id if key not found
+                    this.componentIdToNameMap[id] = name;
+                    this.componentNameToIdMap[name.toLowerCase()] = id;
+                });
             },
             bindEvents() {
                 elements.componentSearchInput.addEventListener('input', () => this.filterComponents());
@@ -1962,7 +1951,7 @@
                 });
                 elements.componentTagsElements.forEach(tag => {
                     tag.addEventListener('click', (e) => this.toggleComponent(e.currentTarget));
-                    tag.addEventListener('keydown', (e) => { // Keyboard support for selection
+                    tag.addEventListener('keydown', (e) => { 
                         if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             this.toggleComponent(e.currentTarget);
@@ -2032,6 +2021,12 @@
                     .map(t => t.dataset.componentId);
                 this.updateComponentPreview();
                 selectionManager.updateSelectionDisplay('components');
+            },
+            getComponentIdByName(name) {
+                return this.componentNameToIdMap[name.toLowerCase()];
+            },
+            getAllComponentNames() {
+                return Object.values(this.componentIdToNameMap);
             }
         };
         
@@ -2094,6 +2089,7 @@
                 this.updateTemplateSelectionVisuals(templateId);
                 selectionManager.updateAllDisplays();
                 showToast('templateApplied', 'success');
+                 keywordManager.renderKeywords(); // Update keywords after applying template
             },
             updateTemplateSelectionVisuals(selectedTemplateId) {
                 elements.templateSelectionContainer.querySelectorAll('.template-option-card').forEach(card => {
@@ -2121,24 +2117,53 @@
                 });
             },
             renderKeywords() {
-                const container = elements.keywordSnippetsContainer;
-                if (!container) return;
-                container.innerHTML = '';
+                const commonContainer = elements.keywordSnippetsContainer;
+                const suggestedContainer = elements.suggestedKeywordsContainer;
+                if (!commonContainer || !suggestedContainer) return;
                 
+                commonContainer.innerHTML = '';
+                suggestedContainer.innerHTML = '';
+
+                // Render Suggested Keywords
+                const suggestedKeywords = new Set();
+                if (state.selections.purpose && SMART_KEYWORD_MAPPINGS.purpose[state.selections.purpose]) {
+                    SMART_KEYWORD_MAPPINGS.purpose[state.selections.purpose].forEach(kw => suggestedKeywords.add(kw));
+                }
+                if (state.selections.industry && SMART_KEYWORD_MAPPINGS.industry[state.selections.industry]) {
+                    SMART_KEYWORD_MAPPINGS.industry[state.selections.industry].forEach(kw => suggestedKeywords.add(kw));
+                }
+                if (state.selections.style && SMART_KEYWORD_MAPPINGS.style[state.selections.style]) {
+                    SMART_KEYWORD_MAPPINGS.style[state.selections.style].forEach(kw => suggestedKeywords.add(kw));
+                }
+
+                if (suggestedKeywords.size > 0) {
+                    suggestedKeywords.forEach(keyword => {
+                        const tag = document.createElement('button');
+                        tag.className = 'keyword-tag';
+                        tag.innerHTML = `<i class="${keyword.icon || 'fas fa-lightbulb'}" aria-hidden="true"></i> ${i18nManager.t(keyword.textKey || keyword.text, keyword.text)}`;
+                        tag.addEventListener('click', () => this.addKeywordToDetails(i18nManager.t(keyword.textKey || keyword.text, keyword.text)));
+                        suggestedContainer.appendChild(tag);
+                    });
+                } else {
+                    suggestedContainer.innerHTML = `<p class="text-xs italic" data-i18n="noSuggestedKeywords">${i18nManager.t('noSuggestedKeywords')}</p>`;
+                }
+                
+                // Render Common Keywords
                 KEYWORD_DEFINITIONS.forEach(keyword => {
                     const tag = document.createElement('button');
                     tag.className = 'keyword-tag';
                     tag.innerHTML = `<i class="${keyword.icon}" aria-hidden="true"></i> ${i18nManager.t(keyword.textKey)}`;
                     tag.addEventListener('click', () => this.addKeywordToDetails(i18nManager.t(keyword.textKey)));
-                    container.appendChild(tag);
+                    commonContainer.appendChild(tag);
                 });
 
+                // Render Custom Keywords (as part of common for now, or could be a third section)
                 state.customKeywords.forEach(keywordText => {
                     const tag = document.createElement('button');
                     tag.className = 'keyword-tag'; 
                     tag.innerHTML = `<i class="fas fa-star text-yellow-500" aria-hidden="true"></i> ${keywordText}`; 
                     tag.addEventListener('click', () => this.addKeywordToDetails(keywordText));
-                    container.appendChild(tag);
+                    commonContainer.appendChild(tag);
                 });
             },
             addKeywordToDetails(keywordText) {
@@ -2154,12 +2179,12 @@
                 const listContainer = elements.customKeywordsList;
                 listContainer.innerHTML = '';
                 if (state.customKeywords.length === 0) {
-                    listContainer.innerHTML = `<p class="text-xs text-gray-500" data-i18n="noCustomKeywords">${i18nManager.t('noCustomKeywords')}</p>`;
+                    listContainer.innerHTML = `<p class="text-xs" data-i18n="noCustomKeywords">${i18nManager.t('noCustomKeywords')}</p>`;
                     return;
                 }
                 state.customKeywords.forEach((keyword, index) => {
                     const item = document.createElement('div');
-                    item.className = 'custom-keyword-item flex items-center';
+                    item.className = 'custom-keyword-item flex items-center'; // Tailwind class for pill shape
                     item.innerHTML = `
                         <span class="flex-grow">${keyword}</span>
                         <button data-index="${index}" class="remove-custom-keyword-btn" aria-label="${i18nManager.t('removeButton')} ${keyword}">
@@ -2180,7 +2205,7 @@
                     return;
                 }
                 state.customKeywords.push(newKeyword);
-                localStorage.setItem('customKeywords_v1.2', JSON.stringify(state.customKeywords));
+                localStorage.setItem('customKeywords_v1.3', JSON.stringify(state.customKeywords));
                 this.renderCustomKeywordsList();
                 this.renderKeywords(); 
                 elements.newCustomKeywordInput.value = '';
@@ -2188,7 +2213,7 @@
             },
             removeCustomKeyword(index) {
                 state.customKeywords.splice(index, 1);
-                localStorage.setItem('customKeywords_v1.2', JSON.stringify(state.customKeywords));
+                localStorage.setItem('customKeywords_v1.3', JSON.stringify(state.customKeywords));
                 this.renderCustomKeywordsList();
                 this.renderKeywords(); 
                 showToast('customKeywordRemoved', 'info');
@@ -2214,7 +2239,7 @@
                 );
 
                 if (filteredHistory.length === 0) {
-                    container.innerHTML = `<p class="text-sm text-gray-500 text-center py-4" data-i18n="noHistory">${i18nManager.t('noHistory')}</p>`;
+                    container.innerHTML = `<p class="text-sm text-center py-4" data-i18n="noHistory">${i18nManager.t('noHistory')}</p>`;
                     return;
                 }
                 filteredHistory.slice().reverse().forEach((item) => { 
@@ -2250,13 +2275,13 @@
                 if (state.promptHistory.length > this.MAX_HISTORY_ITEMS) {
                     state.promptHistory.shift(); 
                 }
-                localStorage.setItem('promptHistory_v1.2', JSON.stringify(state.promptHistory));
+                localStorage.setItem('promptHistory_v1.3', JSON.stringify(state.promptHistory));
                 this.renderHistory();
             },
             clearHistory() {
                 if (confirm(i18nManager.t('confirmClearHistory'))) {
                     state.promptHistory = [];
-                    localStorage.removeItem('promptHistory_v1.2');
+                    localStorage.removeItem('promptHistory_v1.3');
                     this.renderHistory();
                     showToast('historyCleared', 'info');
                 }
@@ -2382,7 +2407,7 @@
             closeModal() { elements.settingsModal.classList.remove('show'); document.body.style.overflow = ''; },
             loadSettings() {
                 try {
-                    const saved = localStorage.getItem('openai_settings_v1.2'); 
+                    const saved = localStorage.getItem('openai_settings_v1.3'); 
                     const settings = saved ? JSON.parse(saved) : { ...this.defaultSettings };
                     elements.apiKeyInput.value = settings.apiKey || '';
                     elements.baseUrlInput.value = settings.baseUrl || this.defaultSettings.baseUrl;
@@ -2393,7 +2418,7 @@
                 let model = elements.modelSelect.value;
                 if (model === 'custom') model = elements.customModelInput.value.trim() || this.defaultSettings.model;
                 const settings = { apiKey: elements.apiKeyInput.value.trim(), baseUrl: elements.baseUrlInput.value.trim() || this.defaultSettings.baseUrl, model };
-                localStorage.setItem('openai_settings_v1.2', JSON.stringify(settings));
+                localStorage.setItem('openai_settings_v1.3', JSON.stringify(settings));
             },
             resetSettings() {
                 elements.apiKeyInput.value = this.defaultSettings.apiKey;
@@ -2401,14 +2426,14 @@
                 this.populateModelSelect([], this.defaultSettings.model); 
                 elements.customModelInput.value = '';
                 elements.customModelContainer.classList.add('hidden');
-                localStorage.setItem('openai_settings_v1.2', JSON.stringify(this.defaultSettings));
+                localStorage.setItem('openai_settings_v1.3', JSON.stringify(this.defaultSettings));
                 state.customKeywords = [];
-                localStorage.removeItem('customKeywords_v1.2');
+                localStorage.removeItem('customKeywords_v1.3');
                 keywordManager.renderCustomKeywordsList();
                 keywordManager.renderKeywords();
             },
             getSettings() {
-                const saved = localStorage.getItem('openai_settings_v1.2');
+                const saved = localStorage.getItem('openai_settings_v1.3');
                 return saved ? JSON.parse(saved) : { ...this.defaultSettings };
             },
             async fetchAvailableModels(showSuccessToast = true) {
@@ -2505,11 +2530,7 @@
             toggleEditPrompt(forceState = null) {
                 state.isEditingPrompt = forceState !== null ? forceState : !state.isEditingPrompt;
                 elements.generatedPrompt.readOnly = !state.isEditingPrompt;
-                elements.generatedPrompt.classList.toggle('border-indigo-500', state.isEditingPrompt);
-                elements.generatedPrompt.classList.toggle('dark:border-indigo-500', state.isEditingPrompt);
-                elements.generatedPrompt.classList.toggle('bg-white', state.isEditingPrompt);
-                elements.generatedPrompt.classList.toggle('dark:bg-gray-900', state.isEditingPrompt);
-
+                elements.generatedPrompt.classList.toggle('editing', state.isEditingPrompt); // Used for specific bg/border
 
                 const editBtnText = elements.editPromptBtn.querySelector('span');
                 const editBtnIcon = elements.editPromptBtn.querySelector('i');
@@ -2584,7 +2605,7 @@
             buildBasePrompt() {
                 const { purposeText, industryText, style, color, components, additionalDetails, negativePrompt } = state.selections;
                 const lang = state.promptLanguage;
-                const detail = state.promptDetailLevel;
+                const detail = state.promptDetailLevel; // Not used directly in base, but for AI enhancement instruction
                 let aspectRatioString = '';
                 if (state.aspectRatio === 'custom' && state.customAspectRatio) {
                     aspectRatioString = state.customAspectRatio;
@@ -2601,7 +2622,7 @@
                     aspectRatioPart = aspectRatioString ? `图片或屏幕比例：${aspectRatioString}。` : '';
                     intro = `请为我设计一个用于“${purposeText || '通用目的'}”的UI界面。\n行业背景：“${industryText || '通用行业'}”。\n设计风格：偏向“${style || '现代简约'}”风格。\n主题色调：主要采用“${color || '#6366F1'}”作为主色调，搭配和谐的辅助色。`;
                     ensurePoints = `\n请确保最终的UI设计：\n1. 视觉上现代、专业且吸引用户。\n2. 具有优秀的用户体验和直观的导航。\n3. 响应式设计，适应不同设备屏幕。\n4. 信息架构清晰，内容易于理解。\n5. 界面元素间距恰当，留白舒适。`;
-                    outro = `\n请提供一个${detail === 'concise' ? '简洁的' : detail === 'detailed' ? '非常详细的、包含具体元素描述和布局建议的' : '标准的、可操作的'}UI设计提示词，可以直接用于AI工具生成高质量的UI设计稿。提示词应具体描述页面布局、关键元素、视觉风格、色彩方案和整体氛围。`;
+                    outro = `\n请提供一个可操作的UI设计提示词，可以直接用于AI工具生成高质量的UI设计稿。提示词应具体描述页面布局、关键元素、视觉风格、色彩方案和整体氛围。`;
                 } else { 
                     componentsString = components.length > 0 ? `Include the following UI components: ${components.join(', ')}.` : 'No specific component requirements.';
                     additionalDetailsString = additionalDetails ? `Additional details and requirements: ${additionalDetails}.` : '';
@@ -2609,7 +2630,7 @@
                     aspectRatioPart = aspectRatioString ? `Image or screen aspect ratio: ${aspectRatioString}.` : '';
                     intro = `Design a UI interface for "${purposeText || 'a general purpose application'}".\nIndustry context: "${industryText || 'a general industry'}".\nDesign style: Lean towards a "${style || 'modern minimalist'}" style.\nColor palette: Primarily use "${color || '#6366F1'}" as the main color, complemented by harmonious accent colors.`;
                     ensurePoints = `\nEnsure the final UI design is:\n1. Visually modern, professional, and engaging.\n2. Features an excellent user experience and intuitive navigation.\n3. Responsive design, adaptable to various device screens.\n4. Clear information architecture and easily understandable content.\n5. Appropriate spacing and comfortable white space.`;
-                    outro = `\nPlease provide a ${detail === 'concise' ? 'concise' : detail === 'detailed' ? 'very detailed, including specific element descriptions and layout suggestions,' : 'standard, actionable'} UI design prompt suitable for AI tools to produce high-quality UI mockups. The prompt should specify page layout, key elements, visual style, color scheme, and overall atmosphere.`;
+                    outro = `\nPlease provide an actionable UI design prompt suitable for AI tools to produce high-quality UI mockups. The prompt should specify page layout, key elements, visual style, color scheme, and overall atmosphere.`;
                 }
                 return `${intro}\n${componentsString}\n${aspectRatioPart ? aspectRatioPart + '\n' : ''}${additionalDetailsString}\n${negativePromptString}${ensurePoints}${outro}`;
             },
@@ -2619,10 +2640,19 @@
                 let systemMessage = instructionOverride;
 
                 if (!systemMessage) { 
+                    let detailInstruction = "";
+                    if (detail === 'concise') {
+                        detailInstruction = lang === 'zh' ? "简洁明了，突出核心要素。" : "concise, highlighting core elements.";
+                    } else if (detail === 'detailed') {
+                        detailInstruction = lang === 'zh' ? "非常详细，包含具体元素描述、布局建议、微交互提示、情感氛围营造，并富有想象力。" : "highly detailed, including specific element descriptions, layout suggestions, micro-interaction hints, mood creation, and be imaginative.";
+                    } else { // standard
+                        detailInstruction = lang === 'zh' ? "标准的，包含关键设计点和操作性建议。" : "standard, covering key design points with actionable advice.";
+                    }
+
                     if (lang === 'zh') {
-                        systemMessage = `你是一个专业的UI/UX设计提示词工程师。你的任务是接收一个基础的UI设计需求描述，然后将其优化和扩展成一个${detail === 'concise' ? '简洁的' : detail === 'detailed' ? '非常详细的、富有想象力的' : '标准的'}、具体、富有创意且可操作的AI绘图提示词。最终返回的优化后提示词必须是【中文】。请直接返回优化后的中文提示词文本，不要包含任何解释、介绍或markdown格式。`;
+                        systemMessage = `你是一个专业的UI/UX设计提示词工程师。你的任务是接收一个基础的UI设计需求描述，然后将其优化和扩展成一个${detailInstruction}、具体、富有创意且可操作的AI绘图提示词。最终返回的优化后提示词必须是【中文】。请直接返回优化后的中文提示词文本，不要包含任何解释、介绍或markdown格式。`;
                     } else { 
-                        systemMessage = `You are a professional UI/UX design prompt engineer. Your task is to take a basic UI design requirement description and optimize and expand it into a ${detail === 'concise' ? 'concise' : detail === 'detailed' ? 'highly detailed and imaginative' : 'standard'}, specific, creative, and actionable AI art prompt. The final optimized prompt must be in **English**. Directly return the optimized English prompt text without any explanations, introductions, or markdown formatting.`;
+                        systemMessage = `You are a professional UI/UX design prompt engineer. Your task is to take a basic UI design requirement description and optimize and expand it into a ${detailInstruction}, specific, creative, and actionable AI art prompt. The final optimized prompt must be in **English**. Directly return the optimized English prompt text without any explanations, introductions, or markdown formatting.`;
                     }
                 }
 
@@ -2633,9 +2663,9 @@
                     const errorType = errData.error?.type || 'unknown_error';
                     let errorMessage = errData.error?.message || response.statusText;
                     
-                    if (response.status === 401) errorMessage = "Invalid API Key or Authentication Failed.";
-                    else if (response.status === 429) errorMessage = "Rate limit exceeded or quota reached. Please check your OpenAI account.";
-                    else if (response.status === 400 && errorMessage.includes("model_not_found")) errorMessage = `Model '${model}' not found or not accessible with your API key.`;
+                    if (response.status === 401) errorMessage = "API密钥无效或验证失败。";
+                    else if (response.status === 429) errorMessage = "请求频率过高或配额已用尽，请检查您的OpenAI账户。";
+                    else if (response.status === 400 && errorMessage.includes("model_not_found")) errorMessage = `模型 '${model}' 未找到或您的API密钥无权访问。`;
                     
                     throw new Error(`${i18nManager.t('errorOpenAI')} (${response.status} ${errorType}): ${errorMessage}`); 
                 }
@@ -2712,7 +2742,6 @@
                                 } else {
                                     editBtnIcon.className = 'fas fa-edit';
                                     editBtn.title = i18nManager.t('editButton');
-                                    // Potentially save the edited text if needed for other features
                                 }
                             });
 
@@ -2765,7 +2794,7 @@
             },
             exportConfig() {
                 const config = {
-                    version: "1.2", 
+                    version: "1.3", 
                     timestamp: Date.now(),
                     selections: state.selections,
                     promptLanguage: state.promptLanguage,
@@ -2774,13 +2803,13 @@
                     customAspectRatio: state.customAspectRatio,
                     openaiSettings: openAISettingsManager.getSettings(),
                     customKeywords: state.customKeywords,
-                    uiLanguage: state.uiLanguage,
+                    uiLanguage: state.uiLanguage, // Should always be zh-CN
                     theme: state.theme
                 };
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
                 const downloadAnchorNode = document.createElement('a');
                 downloadAnchorNode.setAttribute("href", dataStr);
-                downloadAnchorNode.setAttribute("download", `ai_ui_prompt_config_v1.2_${new Date().toISOString().slice(0,10)}.json`);
+                downloadAnchorNode.setAttribute("download", `ai_ui_prompt_config_v1.3_${new Date().toISOString().slice(0,10)}.json`);
                 document.body.appendChild(downloadAnchorNode);
                 downloadAnchorNode.click();
                 downloadAnchorNode.remove();
@@ -2793,8 +2822,8 @@
                 reader.onload = (e) => {
                     try {
                         const config = JSON.parse(e.target.result);
-                        if (!config.version || (config.version !== "1.1" && config.version !== "1.2")) { 
-                            throw new Error(i18nManager.t('invalidConfigFile') + (config.version ? ` (Version ${config.version} not supported)`: ''));
+                        if (!config.version || (config.version !== "1.1" && config.version !== "1.2" && config.version !== "1.3")) { 
+                            throw new Error(i18nManager.t('invalidConfigFile') + (config.version ? ` (版本 ${config.version} 不支持)`: ''));
                         }
                         
                         selectionManager.resetAllSelections(); 
@@ -2846,18 +2875,19 @@
                         }
                         
                         selectionManager.updateAllDisplays();
+                        keywordManager.renderKeywords(); // Update keywords after import
 
                         if (config.openaiSettings) {
-                            localStorage.setItem('openai_settings_v1.2', JSON.stringify(config.openaiSettings)); 
+                            localStorage.setItem('openai_settings_v1.3', JSON.stringify(config.openaiSettings)); 
                             openAISettingsManager.loadSettings(); 
                         }
                         if (config.customKeywords) {
                             state.customKeywords = Array.isArray(config.customKeywords) ? config.customKeywords : [];
-                            localStorage.setItem('customKeywords_v1.2', JSON.stringify(state.customKeywords));
+                            localStorage.setItem('customKeywords_v1.3', JSON.stringify(state.customKeywords));
                             keywordManager.renderKeywords(); 
                             keywordManager.renderCustomKeywordsList(); 
                         }
-                        if (config.uiLanguage) i18nManager.setLanguage(config.uiLanguage);
+                        // UI language is fixed to Chinese, so no need to set it from config
                         if (config.theme) {
                             localStorage.setItem('theme', config.theme);
                             themeManager.loadSavedTheme();
@@ -2890,7 +2920,7 @@
             closeTutorial() {
                 elements.tutorialOverlay.classList.remove('show');
                 state.hasSeenTutorial = true;
-                localStorage.setItem('hasSeenTutorial_v1.2', 'true'); 
+                localStorage.setItem('hasSeenTutorial_v1.3', 'true'); 
             }
         };
         
@@ -2903,7 +2933,92 @@
                 if (!arr || arr.length === 0) return null;
                 return arr[Math.floor(Math.random() * arr.length)];
             },
-            generateRandomSetup() {
+            async generateRandomSetup() {
+                if (state.isAISurpriseInProgress) return;
+                state.isAISurpriseInProgress = true;
+                const spinner = elements.randomSurpriseBtn.querySelector('.loading-spinner');
+                if (spinner) spinner.classList.remove('hidden');
+
+                const settings = openAISettingsManager.getSettings();
+                if (settings.apiKey && settings.apiKey.trim() !== '') {
+                    try {
+                        const allComponentNames = componentManager.getAllComponentNames().join(', ');
+                        const systemPrompt = `你是一个富有创意的UI设计概念生成器。请生成一个随机且有趣的UI设计概念。
+                        以JSON格式返回结果，包含以下键：'purposeText' (设计目的，中文，例如：移动应用、网站), 
+                        'industryText' (行业领域，中文，例如：健康、金融、教育), 
+                        'style' (设计风格，中文，从 ${Array.from(elements.styleCards).map(c => c.dataset.style).join(', ')} 中选择一个), 
+                        'mainColor' (16进制颜色代码，例如：#4CAF50), 
+                        'componentNames' (一个包含2-3个组件中文名称的数组，从以下列表中选择或使用非常通用的UI术语：${allComponentNames}), 
+                        'additionalDetail' (一句简短的额外细节描述，中文，例如：强调数据的可视化和易读性)。
+                        确保所有文本值为中文。`;
+                        
+                        const requestData = { model: settings.model, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: "请给我一个随机UI设计概念。" }], temperature: 0.9, response_format: { "type": "json_object" } };
+                        const endpoint = `${settings.baseUrl.replace(/\/$/, '')}/chat/completions`;
+                        const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${settings.apiKey}` }, body: JSON.stringify(requestData) });
+
+                        if (!response.ok) throw new Error(`AI API Error: ${response.status}`);
+                        const aiResponse = await response.json();
+                        const concept = JSON.parse(aiResponse.choices[0].message.content);
+                        
+                        selectionManager.resetAllSelections();
+
+                        // Apply AI generated concept
+                        const purposeCard = Array.from(elements.purposeCards).find(c => c.querySelector('p.font-medium').textContent.trim() === concept.purposeText);
+                        if (purposeCard) selectionManager.handlePurposeSelection(purposeCard);
+                        else console.warn("AI Surprise: Purpose not found:", concept.purposeText);
+
+                        const industryTag = Array.from(elements.industryTags).find(t => t.textContent.trim() === concept.industryText);
+                        if (industryTag) selectionManager.handleIndustrySelection(industryTag);
+                        else console.warn("AI Surprise: Industry not found:", concept.industryText);
+
+                        const styleCard = Array.from(elements.styleCards).find(s => s.dataset.style === concept.style);
+                        if (styleCard) selectionManager.handleStyleSelection(styleCard);
+                        else console.warn("AI Surprise: Style not found:", concept.style);
+                        
+                        if (selectionManager.isValidColor(concept.mainColor)) {
+                            state.selections.color = concept.mainColor;
+                            elements.customColorInput.value = concept.mainColor;
+                            elements.customColorPreview.style.backgroundColor = concept.mainColor;
+                            const colorSwatch = Array.from(elements.colorSwatches).find(cs => cs.dataset.color.toLowerCase() === concept.mainColor.toLowerCase());
+                            if (colorSwatch) selectionManager.handleColorSelection(colorSwatch);
+                            else elements.colorSwatches.forEach(s => s.classList.remove('selected')); // Deselect if custom
+                            selectionManager.updateSelectionDisplay('color');
+                        } else {
+                            console.warn("AI Surprise: Invalid color:", concept.mainColor);
+                            const randomColorSwatch = this.getRandomElement(Array.from(elements.colorSwatches));
+                            if (randomColorSwatch) selectionManager.handleColorSelection(randomColorSwatch);
+                        }
+
+                        if (concept.componentNames && Array.isArray(concept.componentNames)) {
+                            const componentIdsToSelect = concept.componentNames
+                                .map(name => componentManager.getComponentIdByName(name))
+                                .filter(id => id);
+                            componentManager.selectComponentsByIds(componentIdsToSelect);
+                        }
+
+                        if (concept.additionalDetail) {
+                            elements.additionalDetails.value = concept.additionalDetail;
+                            state.selections.additionalDetails = concept.additionalDetail;
+                        }
+                        
+                        showToast('aiRandomSetupGenerated', 'success');
+
+                    } catch (error) {
+                        console.error("AI Surprise Error:", error);
+                        showToast('aiRandomSetupFailed', 'warning');
+                        this.applyLocalRandomSetup(); // Fallback to local random
+                    }
+                } else {
+                    this.applyLocalRandomSetup();
+                    showToast('randomSetupGenerated', 'info');
+                }
+                selectionManager.updateAllDisplays(); 
+                keywordManager.renderKeywords();
+                wizardManager.moveToStep(4); 
+                if (spinner) spinner.classList.add('hidden');
+                state.isAISurpriseInProgress = false;
+            },
+            applyLocalRandomSetup() {
                 selectionManager.resetAllSelections();
 
                 const randomPurposeCard = this.getRandomElement(Array.from(elements.purposeCards));
@@ -2940,18 +3055,14 @@
                 elements.aspectRatioSelect.value = this.getRandomElement(aspectRatios);
                 state.aspectRatio = elements.aspectRatioSelect.value;
                 elements.customAspectRatioContainer.classList.add('hidden'); 
-
-                selectionManager.updateAllDisplays(); 
-                showToast('randomSetupGenerated', 'info');
-                wizardManager.moveToStep(4); 
             }
         };
 
 
         // --- App Initialization ---
         function initApp() {
-            if (window.promptGeneratorInitialized_v1_2) return; 
-            window.promptGeneratorInitialized_v1_2 = true;
+            if (window.promptGeneratorInitialized_v1_3) return; 
+            window.promptGeneratorInitialized_v1_3 = true;
 
             elements.currentYear.textContent = new Date().getFullYear();
 
@@ -2974,6 +3085,21 @@
             elements.customColorPreview.style.backgroundColor = state.selections.color;
             elements.customColorInput.value = state.selections.color;
             elements.generatedPrompt.value = i18nManager.t('clickGeneratePrompt'); 
+            
+            // Ensure all text-based elements use proper colors
+            document.querySelectorAll('.card p, .card label, .card li, .wizard-step p, .footer p').forEach(el => {
+                el.style.color = 'var(--text-secondary)';
+            });
+             document.querySelectorAll('.card h1, .card h2, .card h3, .card .font-medium, .wizard-step h2, .wizard-step h3, .wizard-step label, footer button, footer label').forEach(el => {
+                el.style.color = 'var(--text-primary)';
+            });
+            document.querySelectorAll('.purpose-card .text-xs, .template-option-card p').forEach(el => {
+                el.style.color = 'var(--text-secondary)'; // Explicitly set for sub-texts in cards
+            });
+             document.querySelectorAll('.component-section-title, .history-item .truncate, .settings-tab-button, .settings-modal h3, .tutorial-box h2, .tutorial-box p').forEach(el => {
+                el.style.color = 'var(--text-primary)';
+            });
+
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
