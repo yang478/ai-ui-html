@@ -1,5 +1,5 @@
     
-        :root {
+:root {
             /* Palette */
             --primary-color: #6366F1;
             --primary-light: #EEF2FF;
@@ -72,12 +72,20 @@
 
         /* Realtime two-column scroll container */
         /* Two independent scroll columns (desktop and up) */
-        @media (min-width: 1024px) {
+@media (min-width: 1024px) {
             html, body { height: 100%; overflow: hidden; }
             .left-pane,
             .right-pane {
                 height: calc(100vh - 140px);
                 overflow-y: auto;
+                /* Improve scroll smoothness and isolate painting */
+                contain: paint;
+                backface-visibility: hidden;
+                will-change: transform;
+                transform: translateZ(0);
+                overscroll-behavior: contain;
+                scrollbar-gutter: stable both-edges;
+                -webkit-overflow-scrolling: touch;
             }
         }
 
@@ -101,7 +109,21 @@
         small { color: var(--text-secondary); }
 
         /* Unified icon styling */
-        .icon { width: 1em; height: 1em; display: inline-block; color: inherit; line-height: 1; vertical-align: -0.125em; font-size: var(--icon-size); }
+        .icon {
+            width: 1em; height: 1em; display: inline-block; color: inherit; line-height: 1; vertical-align: -0.125em; font-size: var(--icon-size);
+            /* Improve SVG stroke crispness */
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            shape-rendering: geometricPrecision;
+        }
+        /* Keep stroke width constant in CSS pixels for better hinting */
+        .icon use { vector-effect: non-scaling-stroke; }
+        .icon-sm use { stroke-width: 1.6; }
+        .icon-md use { stroke-width: 2; }
+        .icon-lg use { stroke-width: 2.2; }
+        .icon-xl use { stroke-width: 2.4; }
         .icon-sm { font-size: var(--icon-size-sm); }
         .icon-md { font-size: var(--icon-size); }
         .icon-lg { font-size: var(--icon-size-lg); }
@@ -111,10 +133,24 @@
         .icon-spin { animation: iconSpin 1s linear infinite; }
         @keyframes iconSpin { to { transform: rotate(360deg); } }
 
+        /* Filled variant for icons that use solid glyphs */
+        .icon.icon-filled { fill: currentColor; stroke: none; }
+        .icon.icon-filled use { vector-effect: none; }
+
         /* Harmonize Tailwind color utilities within components */
         .purpose-card, .style-card, .template-card { background-color: var(--bg-primary); border-color: var(--border-color); }
         .purpose-card .template-actions button { color: var(--text-primary); }
-        .check-mark { background-color: var(--primary-color); color: #fff; }
+        .check-mark {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+        }
+
+        .purpose-card.selected .check-mark {
+            opacity: 1;
+            transform: scale(1);
+        }
 
         /* Step number badge color override to tokens */
         .wizard-step h2 > .rounded-full { background-color: var(--primary-light); color: var(--primary-color); }
@@ -153,7 +189,7 @@
             color: var(--primary-color);
         }
         .icon-button--accent:hover {
-            filter: brightness(97%);
+            background-color: #E0E7FF;
         }
         
 
@@ -203,11 +239,11 @@
         .btn-secondary { background-color: var(--bg-tertiary); color: var(--text-primary); border-color: var(--border-color); transition: var(--transition-normal); }
 
         .btn-secondary:hover {
-            filter: brightness(98%);
+            background-color: var(--bg-tertiary);
             transform: translateY(-1px);
         }
 
-        .style-card {
+.style-card {
             cursor: pointer;
             transition: var(--transition-bounce);
             border: 2px solid transparent;
@@ -216,18 +252,16 @@
             /* Ensure background for contrast */
             color: var(--text-primary);
             /* Ensure text color for contrast */
-        }
+}
 
-        .style-card.selected {
+.style-card.selected {
+            /* 实色边框高亮（不使用环形阴影） */
             border-color: var(--primary-color);
-            transform: translateY(-3px) scale(1.01);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
+            transform: translateY(-3px) scale(1.01);
+}
 
-        .style-card.selected .check-mark {
-            opacity: 1;
-            /* Make checkmark visible when selected */
-        }
+        /* 去除选中卡片右上角提示（不再展示） */
 
         .style-card:hover:not(.selected) {
             transform: translateY(-2px);
@@ -294,7 +328,7 @@
         /* Contrast + hint text */
         .text-gray-500,
         .text-gray-600 {
-            color: var(--text-hint) !important;
+            color: var(--text-hint);
         }
         input::placeholder,
         textarea::placeholder {
@@ -632,13 +666,7 @@
             opacity: 0.7;
         }
 
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(99, 102, 102, 0.2);
-            outline: none;
-        }
+        /* focus 样式统一：使用主色调的轻微投影（避免重复定义） */
 
         .color-picker-container {
             position: relative;
@@ -1113,3 +1141,27 @@
             z-index: 5;
         }
     
+.purpose-card {
+    cursor: pointer;
+    transition: var(--transition-bounce);
+    border: 2px solid transparent;
+    transform-origin: center bottom;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    position: relative;
+}
+
+.purpose-card.selected {
+    border-color: var(--primary-color);
+    border-width: 1px;
+    box-shadow:
+        0 0 0 1px var(--primary-color),
+        0 8px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.purpose-card:hover:not(.selected) {
+    transform: translateY(-2px);
+    border-color: var(--border-color);
+}

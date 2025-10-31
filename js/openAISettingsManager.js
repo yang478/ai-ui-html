@@ -60,14 +60,6 @@ window.openAISettingsManager = {
                     document.body.style.overflow = '';
                 });
 
-                // 点击背景关闭模态框
-                settingsModal.addEventListener('click', (e) => {
-                    if (e.target === settingsModal) {
-                        settingsModal.classList.remove('show');
-                        document.body.style.overflow = '';
-                    }
-                });
-
                 // 模型选择变化事件
                 modelSelect.addEventListener('change', () => {
                     if (modelSelect.value === 'custom') {
@@ -226,8 +218,13 @@ window.openAISettingsManager = {
                         merged.model = merged.model || j.OPENAI_MODEL || j.model || '';
                         merged.maxTokens = merged.maxTokens || j.OPENAI_MAX_TOKENS || j.maxTokens || '';
                         merged.temperature = merged.temperature || j.OPENAI_TEMPERATURE || j.temperature || '';
+                    } else if (resp.status !== 404) {
+                        console.warn('env.json request returned status:', resp.status);
                     }
-                } catch (_) { }
+                } catch (err) {
+                    // 网络错误等，不提示红色错误，保持静默或低噪声日志
+                    // console.debug('env.json not available:', err);
+                }
 
                 // 3) .env（简单解析 KEY=VALUE）
                 try {
@@ -251,8 +248,12 @@ window.openAISettingsManager = {
                             if (key === 'OPENAI_MAX_TOKENS' && !merged.maxTokens) merged.maxTokens = value;
                             if (key === 'OPENAI_TEMPERATURE' && !merged.temperature) merged.temperature = value;
                         }
+                    } else if (resp.status !== 404) {
+                        console.warn('.env request returned status:', resp.status);
                     }
-                } catch (_) { }
+                } catch (err) {
+                    // 静默处理网络异常
+                }
 
                 if (merged.apiKey || merged.baseUrl || merged.model || merged.maxTokens) {
                     this.envSettings = {

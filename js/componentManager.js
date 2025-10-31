@@ -162,6 +162,7 @@ const componentInfo = {
 
 window.componentManager = {
             init() {
+                this._showAllPreview = false;
                 this.bindEvents();
                 this.initializeSearch();
                 this.initializeCategories();
@@ -310,15 +311,16 @@ window.componentManager = {
                     previewContainer.innerHTML = `
           <div class="preview-placeholder">
             <p>选择组件后会在这里显示预览</p>
-            <i class="fas fa-arrow-left text-2xl mt-2"></i>
+            <i class="fas fa-arrow-left text-2xl mt-2" aria-hidden="true"></i>
           </div>
         `;
                     return;
                 }
 
+                const limit = this._showAllPreview ? Number.POSITIVE_INFINITY : 6;
                 let previewHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
                 state.selections.components.forEach((component, index) => {
-                    if (index < 6) {
+                    if (index < limit) {
                         const componentTag = Array.from(elements.componentTags)
                             .find(tag => tag.textContent.trim() === component);
 
@@ -343,12 +345,25 @@ window.componentManager = {
                 });
                 previewHTML += '</div>';
 
-                if (state.selections.components.length > 6) {
-                    previewHTML += `
-          <div class="text-center text-gray-500 mt-4">
-            +${state.selections.components.length - 6} 个其他组件
+                const total = state.selections.components.length;
+                if (total > 6) {
+                    if (!this._showAllPreview) {
+                        previewHTML += `
+          <div class="text-center mt-4">
+            <button class="text-indigo-600 hover:underline text-sm" data-action="toggle-preview-limit">
+              +${total - 6} 个其他组件 · 显示全部
+            </button>
           </div>
         `;
+                    } else {
+                        previewHTML += `
+          <div class="text-center mt-4">
+            <button class="text-indigo-600 hover:underline text-sm" data-action="toggle-preview-limit">
+              收起
+            </button>
+          </div>
+        `;
+                    }
                 }
 
                 previewContainer.innerHTML = previewHTML;
@@ -360,12 +375,20 @@ window.componentManager = {
                         const demo = card.querySelector('.preview-demo');
                         if (demo) demo.classList.toggle('hidden');
                     }
+                    const toggle = e.target.closest('[data-action="toggle-preview-limit"]');
+                    if (toggle) {
+                        this._showAllPreview = !this._showAllPreview;
+                        this.updateComponentPreview();
+                        return;
+                    }
                 };
+                // 通知图标系统刷新（预览区可能有图标）
+                try { document.dispatchEvent(new CustomEvent('icons:refresh', { detail: { scope: previewContainer } })); } catch(_) {}
             },
 
             updateSelectionDisplay() {
                 elements.selectedComponentsCount.innerHTML = `
-        <i class="fas fa-cubes mr-2 text-indigo-500"></i>
+        <i class="fas fa-cubes mr-2 text-indigo-500" aria-hidden="true"></i>
         <span>已选组件: ${state.selections.components.length} 个</span>
       `;
             }

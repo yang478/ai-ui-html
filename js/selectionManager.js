@@ -8,6 +8,7 @@ window.selectionManager = {
                 elements.purposeCards.forEach(card => {
                     card.setAttribute('role', 'button');
                     card.setAttribute('tabindex', '0');
+                    try { card.setAttribute('aria-pressed', 'false'); } catch(_) {}
                     card.addEventListener('click', () => this.handlePurposeSelection(card));
                     card.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.handlePurposeSelection(card); }
@@ -31,6 +32,7 @@ window.selectionManager = {
                 elements.styleCards.forEach(card => {
                     card.setAttribute('role', 'button');
                     card.setAttribute('tabindex', '0');
+                    try { card.setAttribute('aria-pressed', 'false'); } catch(_) {}
                     card.addEventListener('click', () => this.handleStyleSelection(card));
                     card.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.handleStyleSelection(card); }
@@ -61,6 +63,19 @@ window.selectionManager = {
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             this.handleIndustryCustom();
+                        }
+                    });
+                }
+
+                // 自定义风格
+                if (elements.addCustomStyle) {
+                    elements.addCustomStyle.addEventListener('click', () => this.handleStyleCustom());
+                }
+                if (elements.styleCustomInput) {
+                    elements.styleCustomInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            this.handleStyleCustom();
                         }
                     });
                 }
@@ -234,12 +249,38 @@ window.selectionManager = {
             },
 
             handlePurposeSelection(card) {
-                elements.purposeCards.forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-
-                state.selections.purpose = card.dataset.purpose;
-                state.selections.purposeText = card.querySelector('p.font-medium').textContent;
-
+                const isSelected = card.classList.contains('selected');
+                // 清除全部选中样式，并隐藏所有勾选标记
+                elements.purposeCards.forEach(c => {
+                    c.classList.remove('selected');
+                    try { c.setAttribute('aria-pressed', 'false'); } catch(_) {}
+                    try {
+                        const mark = c.querySelector('.check-mark');
+                        if (mark) {
+                            mark.classList.add('opacity-0');
+                            mark.style.opacity = '0';
+                        }
+                    } catch(_) {}
+                });
+                if (isSelected) {
+                    // 二次点击同一项：取消选择
+                    state.selections.purpose = '';
+                    state.selections.purposeText = '';
+                } else {
+                    // 选择新项
+                    card.classList.add('selected');
+                    try { card.setAttribute('aria-pressed', 'true'); } catch(_) {}
+                    state.selections.purpose = card.dataset.purpose;
+                    state.selections.purposeText = card.querySelector('p.font-medium').textContent;
+                    // 显示当前卡片的勾选标记
+                    try {
+                        const mark = card.querySelector('.check-mark');
+                        if (mark) {
+                            mark.classList.remove('opacity-0');
+                            mark.style.opacity = '1';
+                        }
+                    } catch(_) {}
+                }
                 this.updateSelectionDisplay('purpose');
                 try { window.promptManager?.scheduleRealtimeUpdate?.(); } catch(_) {}
                 // 通知其他模块（如建议更新）
@@ -261,23 +302,50 @@ window.selectionManager = {
             },
 
             handleStyleSelection(card) {
-                elements.styleCards.forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-
-                state.selections.style = card.dataset.style;
+                const isSelected = card.classList.contains('selected');
+                elements.styleCards.forEach(c => { c.classList.remove('selected'); try { c.setAttribute('aria-pressed', 'false'); } catch(_) {} });
+                if (isSelected) {
+                    state.selections.style = '';
+                } else {
+                    card.classList.add('selected');
+                    try { card.setAttribute('aria-pressed', 'true'); } catch(_) {}
+                    state.selections.style = card.dataset.style;
+                }
                 this.updateSelectionDisplay('style');
                 try { window.promptManager?.scheduleRealtimeUpdate?.(); } catch(_) {}
             },
 
+            handleStyleCustom() {
+                const input = elements.styleCustomInput;
+                if (!input) return;
+                const val = (input.value || '').trim();
+                if (!val) return;
+                // 清除已有选中样式
+                elements.styleCards.forEach(c => c.classList.remove('selected'));
+                state.selections.style = 'custom';
+                state.selections.styleText = val;
+                this.updateSelectionDisplay('style');
+                try { window.promptManager?.scheduleRealtimeUpdate?.(); } catch(_) {}
+                input.value = '';
+            },
+
             handleIndustrySelection(tag) {
                 const container = elements.industriesContainer || document;
-                container.querySelectorAll('.industry-tag.selected').forEach(t => t.classList.remove('selected'));
-                tag.classList.add('selected');
-                try { tag.setAttribute('aria-pressed', 'true'); } catch(_) {}
-
-                state.selections.industry = tag.dataset.industry || '';
-                state.selections.industryText = (tag.textContent || '').trim();
-
+                const isSelected = tag.classList.contains('selected');
+                container.querySelectorAll('.industry-tag.selected').forEach(t => {
+                    t.classList.remove('selected');
+                    try { t.setAttribute('aria-pressed', 'false'); } catch(_) {}
+                });
+                if (isSelected) {
+                    // 取消选择
+                    state.selections.industry = '';
+                    state.selections.industryText = '';
+                } else {
+                    tag.classList.add('selected');
+                    try { tag.setAttribute('aria-pressed', 'true'); } catch(_) {}
+                    state.selections.industry = tag.dataset.industry || '';
+                    state.selections.industryText = (tag.textContent || '').trim();
+                }
                 this.updateSelectionDisplay('industry');
                 try { window.promptManager?.scheduleRealtimeUpdate?.(); } catch(_) {}
                 document.dispatchEvent(new Event('purposeChanged'));
@@ -314,15 +382,22 @@ window.selectionManager = {
             },
 
             handleColorSelection(swatch) {
-                elements.colorSwatches.forEach(s => s.classList.remove('selected'));
-                swatch.classList.add('selected');
-
-                const color = swatch.getAttribute('data-color');
-                const hex = this.toHexUpper(color);
-                state.selections.color = hex;
-
-                if (elements.customColorInput) elements.customColorInput.value = hex;
-                elements.customColorPreview.style.backgroundColor = hex;
+                const isSelected = swatch.classList.contains('selected');
+                elements.colorSwatches.forEach(s => { s.classList.remove('selected'); try { s.setAttribute('aria-pressed', 'false'); } catch(_) {} });
+                if (isSelected) {
+                    // 取消选择
+                    state.selections.color = '';
+                    if (elements.customColorInput) elements.customColorInput.value = '';
+                    try { elements.customColorPreview.style.backgroundColor = ''; } catch(_) {}
+                } else {
+                    swatch.classList.add('selected');
+                    try { swatch.setAttribute('aria-pressed', 'true'); } catch(_) {}
+                    const color = swatch.getAttribute('data-color');
+                    const hex = this.toHexUpper(color);
+                    state.selections.color = hex;
+                    if (elements.customColorInput) elements.customColorInput.value = hex;
+                    try { elements.customColorPreview.style.backgroundColor = hex; } catch(_) {}
+                }
 
                 this.updateSelectionDisplay('color');
                 try { window.promptManager?.scheduleRealtimeUpdate?.(); } catch(_) {}
@@ -343,15 +418,16 @@ window.selectionManager = {
           `;
                     },
                     style: () => {
+                        const styleText = state.selections.style === 'custom' ? state.selections.styleText : state.selections.style;
                         elements.selectedStyle.innerHTML = `
             <i class="fas fa-palette mr-2 text-indigo-500"></i>
-            <span>风格: ${state.selections.style || '未选择'}</span>
+            <span>风格: ${styleText || '未选择'}</span>
           `;
                     },
                     color: () => {
                         elements.selectedColor.innerHTML = `
             <i class="fas fa-fill-drip mr-2 text-indigo-500"></i>
-            <span>主题色: ${state.selections.color}</span>
+            <span>主题色: ${state.selections.color || '未选择'}</span>
           `;
                     }
                 };

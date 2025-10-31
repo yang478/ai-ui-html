@@ -4,6 +4,8 @@
 <svg id="app-svg-sprite" xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">\
   <symbol id="i-generic" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/></symbol>\
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></symbol>\
+  <!-- Filled check for crisper small sizes -->\
+  <symbol id="i-check-solid" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19l12-12-1.4-1.4z"/></symbol>\
   <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></symbol>\
   <symbol id="i-help-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.82 1c0 2-3 2-3 4"/><path d="M12 17h.01"/></symbol>\
   <symbol id="i-sliders" viewBox="0 0 24 24"><line x1="8" y1="4" x2="8" y2="20"/><circle cx="8" cy="8" r="2"/><line x1="16" y1="4" x2="16" y2="20"/><circle cx="16" cy="14" r="2"/></symbol>\
@@ -90,7 +92,7 @@
     gear: 'i-sliders',
     question: 'i-help-circle',
     'question-circle': 'i-help-circle',
-    check: 'i-check',
+    check: 'i-check-solid',
     'check-circle': 'i-check-circle',
     search: 'i-search',
     copy: 'i-copy',
@@ -249,13 +251,16 @@
       svg.setAttribute('aria-hidden', 'true');
       svg.setAttribute('fill', 'none');
       svg.setAttribute('stroke', 'currentColor');
-      svg.setAttribute('stroke-width', '1.8');
+      // Use an integer base stroke for better pixel-fitting. Per-size tuning is in CSS.
+      svg.setAttribute('stroke-width', '2');
       svg.setAttribute('stroke-linecap', 'round');
       svg.setAttribute('stroke-linejoin', 'round');
       const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
       use.setAttribute('href', `#${id}`);
       // also set xlink:href for broader compatibility
       use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `#${id}`);
+      // Keep strokes crisp across sizes
+      use.setAttribute('vector-effect', 'non-scaling-stroke');
       svg.appendChild(use);
       // keep non-FA utility classes; normalize Tailwind text-* size to icon-* size
       const keepRaw = Array.from(node.classList).filter(c => !/^fa[srlb]?$/.test(c) && !c.startsWith('fa-'));
@@ -276,18 +281,23 @@
       if (node.classList.contains('fa-spin') || node.classList.contains('fa-spinner')) keep.push('icon-spin');
       // ensure a predictable default size class
       if (!sized) keep.push('icon-md');
-      svg.setAttribute('class', `icon ${keep.join(' ')}`);
+      const extra = /-solid$/.test(id) ? ' icon-filled' : '';
+      svg.setAttribute('class', `icon${extra} ${keep.join(' ')}`);
       node.replaceWith(svg);
     }
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     injectSprite();
-    // Initial sweep may run before app renders dynamic content.
-    const runSweep = () => replaceFaInScope(document);
-    runSweep();
-    setTimeout(runSweep, 80);
-    setTimeout(runSweep, 200);
+
+    // Mark decorative <i> icons as aria-hidden for a11y, before replacement
+    try {
+      const faNodes = document.querySelectorAll('i.fa, i.fas, i.far, i.fal, i.fab');
+      faNodes.forEach(n => n.setAttribute('aria-hidden', 'true'));
+    } catch (_) {}
+
+    // First sweep
+    replaceFaInScope(document);
 
     // Observe dynamic DOM changes and replace icons on the fly (scoped and throttled)
     let rafToken = 0;
@@ -311,17 +321,43 @@
         });
       }
     });
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    // Narrow observation scope to known dynamic containers instead of the whole body
+    const targets = [
+      document.getElementById('purposesContainer'),
+      document.getElementById('industriesContainer'),
+      document.getElementById('stylesContainer'),
+      document.getElementById('componentContainer'),
+      document.getElementById('currentSelectionCard'),
+      document.getElementById('outputRightCard')
+    ].filter(Boolean);
+    const config = { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] };
+    if (targets.length) {
+      targets.forEach(t => observer.observe(t, config));
+    } else {
+      // Fallback: if not found, observe the main container to avoid watching entire body
+      const root = document.querySelector('.container') || document.body;
+      observer.observe(root, config);
+    }
 
-    // Remove Font Awesome CSS after UI has rendered and first replacements done
-    setTimeout(() => {
-      const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
-      for (const l of links) {
-        const href = l.getAttribute('href') || '';
-        if (/font-awesome|fortawesome/i.test(href)) {
-          l.parentNode && l.parentNode.removeChild(l);
+    // Listen for explicit refresh requests from other modules
+    document.addEventListener('icons:refresh', (e) => {
+      try { replaceFaInScope(e.detail?.scope || document); } catch (_) {}
+    });
+
+    // Remove Font Awesome CSS once it's loaded or already available
+    try {
+      const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+        .filter(l => /font-awesome|fortawesome/i.test(l.getAttribute('href') || ''));
+      links.forEach(l => {
+        const removeLink = () => { try { l.parentNode && l.parentNode.removeChild(l); } catch (_) {} };
+        if (l.sheet) {
+          // already loaded
+          removeLink();
+        } else {
+          l.addEventListener('load', removeLink, { once: true });
+          l.addEventListener('error', removeLink, { once: true });
         }
-      }
-    }, 600);
+      });
+    } catch (_) {}
   });
 })();

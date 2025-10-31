@@ -126,15 +126,13 @@ window.promptManager = {
                             this.showToast('AI增强失败，已使用基础提示词', 'error');
                         }
                     } else {
-                        // 使用基础提示词
-                        setTimeout(() => {
-                            if (elements.generatedPrompt) elements.generatedPrompt.value = basePrompt;
-                            elements.aiProgressBar.style.width = '100%';
-                            elements.aiProgressBar.classList.remove('ai-progress-bar');
-                            // 自动保存版本（基础）
-                            try { this.saveVersion(basePrompt, 'AI 生成'); } catch (_) {}
-                            this.updateSuggestions();
-                        }, 1500);
+                        // 未配置 API：立即使用基础提示词，无需人为延迟
+                        if (elements.generatedPrompt) elements.generatedPrompt.value = basePrompt;
+                        elements.aiProgressBar.style.width = '100%';
+                        elements.aiProgressBar.classList.remove('ai-progress-bar');
+                        // 自动保存版本（基础）
+                        try { this.saveVersion(basePrompt, '基础生成'); } catch (_) {}
+                        this.updateSuggestions();
                     }
                 } catch (error) {
                     if (elements.generatedPrompt) elements.generatedPrompt.value = '生成提示词时出错，请重试';
@@ -232,8 +230,7 @@ window.promptManager = {
                     style = '简约',
                     color = '#6366F1',
                     components = [],
-                    additionalDetails = '',
-                    clarificationSummary = ''
+                    additionalDetails = ''
                 } = state.selections;
 
                 const componentsString = components.length > 0
@@ -247,7 +244,7 @@ window.promptManager = {
                 lines.push(`- 设计风格：${style}`);
                 lines.push(`- 主题色：${color}`);
                 lines.push(`- 组件需求：${componentsString}`);
-                if (clarificationSummary) lines.push(`- 需求澄清：${clarificationSummary}`);
+                // 不再添加该行
                 if (additionalDetails) lines.push(`- 额外要求：${additionalDetails}`);
                 lines.push('');
                 lines.push('请确保设计：');
@@ -260,6 +257,8 @@ window.promptManager = {
                 lines.push('输出形式：使用 HTML + Tailwind CSS + JS 输出完整的设计稿效果图');
                 return lines.join('\n');
             },
+
+            // 已移除相关自动生成逻辑
 
             // 新增：二次优化功能
             async optimizePrompt() {
@@ -422,11 +421,9 @@ window.promptManager = {
                             if (id) this.deleteVersion(id);
                         }
                     });
-                    // 追加操作按钮（同一行紧邻）
-                    const wrap = document.createElement('span');
-                    wrap.style.display = 'inline-flex';
-                    wrap.style.gap = '6px';
-                    wrap.style.marginLeft = '8px';
+                    // 操作按钮改为放在下方一行，避免与选择器同排拥挤
+                    const bar = document.createElement('div');
+                    bar.className = 'mt-2 flex items-center gap-2 flex-wrap';
                     const delBtn = document.createElement('button');
                     delBtn.type = 'button';
                     delBtn.className = 'btn btn-secondary btn-sm';
@@ -442,11 +439,41 @@ window.promptManager = {
                     clearBtn.addEventListener('click', () => {
                         if (confirm('确认清空全部历史版本？')) this.clearVersions();
                     });
-                    wrap.appendChild(delBtn);
-                    wrap.appendChild(clearBtn);
-                    // 尽量放在 select 后面
-                    if (selectEl.parentNode) {
-                        selectEl.parentNode.insertBefore(wrap, selectEl.nextSibling);
+                    // 将“保存当前”按钮也移动到下方一行
+                    let saveBtn = document.getElementById('saveCurrentVersion');
+                    if (saveBtn && saveBtn.parentNode) {
+                        try { saveBtn.parentNode.removeChild(saveBtn); } catch(_) {}
+                    }
+                    if (!saveBtn) {
+                        // 兜底：如果没有该按钮，则创建一个
+                        saveBtn = document.createElement('button');
+                        saveBtn.id = 'saveCurrentVersion';
+                        saveBtn.textContent = '保存当前';
+                    }
+                    // 统一三个按钮的样式
+                    saveBtn.type = 'button';
+                    saveBtn.className = 'btn btn-secondary btn-sm';
+                    // 确保点击事件已绑定
+                    if (!saveBtn._bound) {
+                        saveBtn.addEventListener('click', () => {
+                            const label = prompt('请输入版本备注（可选）:', '手动保存');
+                            const content = elements.generatedPrompt?.value || '';
+                            if (content.trim()) this.saveVersion(content, label || '手动保存');
+                        });
+                        saveBtn._bound = true;
+                    }
+                    bar.appendChild(delBtn);
+                    bar.appendChild(clearBtn);
+                    bar.appendChild(saveBtn);
+                    // 将按钮条插入到选择器所在行的下一行
+                    const row = selectEl.closest('div');
+                    if (row && row.parentNode) {
+                        row.parentNode.insertBefore(bar, row.nextSibling);
+                    } else if (selectEl.parentNode) {
+                        // 退化处理：直接插到 select 后换行
+                        const br = document.createElement('br');
+                        selectEl.parentNode.insertBefore(br, selectEl.nextSibling);
+                        selectEl.parentNode.insertBefore(bar, br.nextSibling);
                     }
                 } catch (_) {}
             },
