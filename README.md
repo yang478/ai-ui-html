@@ -1,4 +1,4 @@
-## ExoCode Architect V9.0 · Enterprise AI Workbench
+## ExoCode Architect
 
 一个用于快速搭建前端单页应用的本地静态工具，它通过「配置 → 预览 → Prompt 生成与优化」的方式，帮助你迭代界面方案和提示词。
 
