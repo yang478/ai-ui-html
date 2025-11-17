@@ -1,0 +1,138 @@
+        :root {
+            --sidebar-w: 360px;
+            --header-h: 60px;
+            --glass-bg: rgba(20, 20, 23, 0.75);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.06);
+            --accent-color: #6366f1;
+        }
+
+        body {
+            background-color: #050505;
+            color: #e4e4e7;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === 核心组件样式 === */
+
+        /* 1. 滚动条美化 */
+        .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+        /* 2. 玻璃面板 */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: var(--glass-border);
+        }
+
+        /* 3. 交互元素 */
+        .btn-ghost {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s ease;
+        }
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.5);
+            filter: brightness(1.1);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
+
+        /* 4. 输入框样式 */
+        .input-field {
+            background: #09090b;
+            border: 1px solid #27272a;
+            color: white;
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 1px var(--accent-color);
+        }
+
+        /* 5. 网格背景 */
+        .bg-grid-pattern {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        /* 6. 范围滑块 (Range Slider) */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px; width: 14px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            margin-top: -5px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px;
+            cursor: pointer;
+            background: #3f3f46;
+            border-radius: 2px;
+        }
+
+        /* 7. 语法高亮模拟 */
+        .token-tag { color: #ef596f; }
+        .token-attr { color: #d19a66; }
+        .token-val { color: #89ca78; }
+        .token-comment { color: #5c6370; font-style: italic; }
+        .token-plain { color: #abb2bf; }
+
+        /* 8. 开关 (Switch) */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #6366f1;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #6366f1;
+        }
+        
+        /* 9. 动画状态 */
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+
+/* 10. 卡片选中态 */
+.card-selected {
+    border-color: #6366f1 !important;
+    background: rgba(99, 102, 241, 0.08) !important;
+    box-shadow: 0 0 0 1px #6366f1;
+}
+
+/* 11. Prompt Dock (底部工作台) */
+.glass-dock {
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+        /* 12. Prompt Dock 布局：避开左侧栏 */
+        #prompt-dock {
+            left: var(--sidebar-w);
+            right: 0;
+        }

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ExoCode Architect V9.0 | Enterprise AI Workbench</title>
+    <meta name="description" content="Professional AI Frontend Generator">
+    
+    <!-- 核心依赖: Tailwind CSS v3.4 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 图标依赖: FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- 字体配置: Google Fonts (Inter + JetBrains Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'Menlo', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        gray: {
+                            850: '#1f1f22',
+                            900: '#18181b',
+                            950: '#09090b',
+                        },
+                        border: {
+                            DEFAULT: 'rgba(255, 255, 255, 0.08)',
+                            hover: 'rgba(255, 255, 255, 0.15)',
+                        },
+                        accent: {
+                            500: '#6366f1', // Indigo
+                            600: '#4f46e5',
+                            glow: 'rgba(99, 102, 241, 0.5)'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 2s linear infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- 组件库文件必须先于 app.js 加载 -->
+    <script src="js/library.js"></script>
+    <script src="js/library/library-nav.js"></script>
+    <script src="js/library/library-hero.js"></script>
+    <script src="js/library/library-feature.js"></script>
+    <script src="js/library/library-stats.js"></script>
+    <script src="js/library/library-pricing.js"></script>
+    <script src="js/library/library-cta.js"></script>
+    <script src="js/library/library-faq.js"></script>
+    <script src="js/library/library-form.js"></script>
+    <script src="js/library/library-footer.js"></script>
+    <script src="js/library/library-extended.js"></script>
+</head>
+<body class="flex h-screen w-screen text-sm selection:bg-indigo-500/30 selection:text-indigo-100">
+
+    <!-- 侧边栏 (Sidebar) -->
+    <aside class="glass-panel flex flex-col flex-shrink-0 z-30 relative shadow-2xl h-full w-[var(--sidebar-w)]">
+        
+        <!-- Header -->
+        <header class="h-[var(--header-h)] flex items-center justify-between px-6 border-b border-border shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid fa-cube text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm tracking-wide text-white">ExoCode</h1>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]"></span>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Online</span>
+                    </div>
+                </div>
+            </div>
+            <!-- 修复后的设置按钮 -->
+            <button onclick="App.Modal.open('settings')" class="w-8 h-8 rounded-md hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors" title="全局配置">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </header>
+
+        <!-- Step Navigation -->
+        <nav class="px-6 py-4 shrink-0">
+            <div class="flex items-center bg-black/20 p-1 rounded-lg border border-white/5">
+                <button onclick="App.UI.setStep(1)" id="step-btn-1" class="flex-1 py-2 text-xs font-bold rounded shadow-sm transition-all flex items-center justify-center gap-2 bg-gray-800 text-white">
+                    <i class="fa-solid fa-pen-ruler"></i> 1. 定义
+                </button>
+                <button onclick="App.UI.setStep(2)" id="step-btn-2" class="flex-1 py-2 text-xs font-bold rounded text-gray-500 hover:text-white transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-palette"></i> 2. 风格
+                </button>
+                <button onclick="App.UI.setStep(3)" id="step-btn-3" class="flex-1 py-2 text-xs font-bold rounded text-gray-500 hover:text-white transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-layer-group"></i> 3. 组件
+                </button>
+            </div>
+        </nav>
+
+        <!-- Workflow Container -->
+        <div class="flex-1 overflow-y-auto custom-scroll px-6 pb-6 space-y-6 relative" id="workflow-container">
+            
+            <!-- Step 1: Definition -->
+            <div id="step-1" class="step-content active space-y-6">
+                <!-- 业务场景选择 -->
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">选择项目类型</label>
+                    <div class="grid grid-cols-2 gap-3" id="purpose-grid">
+                        <!-- JS 动态注入 -->
+                    </div>
+                </div>
+                <!-- 需求描述 -->
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">需求上下文 (Context)</label>
+                    <div class="relative">
+                        <textarea id="ctx-input" rows="4" class="w-full input-field rounded-lg p-3 text-xs resize-none leading-relaxed" placeholder="例如：这是一个面向极客的 SaaS 仪表盘，需要体现科技感，主要功能是展示服务器监控数据..." oninput="App.State.setContext(this.value)"></textarea>
+                        <div class="absolute bottom-2 right-2 text-[10px] text-gray-600">AI 辅助增强</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Styling -->
+            <div id="step-2" class="step-content space-y-6">
+                <!-- 风格预设 -->
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">视觉基调</label>
+                    <div class="grid grid-cols-2 gap-3" id="style-grid">
+                        <!-- JS 动态注入 -->
+                    </div>
+                </div>
+                
+                <!-- 高级参数面板 -->
+                <div class="bg-white/5 border border-white/5 rounded-xl p-4 space-y-5">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-white">Design Tokens</h3>
+                        <button onclick="App.State.resetStyle()" class="text-[10px] text-indigo-400 hover:text-indigo-300">重置默认</button>
+                    </div>
+
+                    <!-- Primary Color -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] text-gray-400 font-medium">
+                            <span>Primary Color</span>
+                            <span id="val-color" class="font-mono text-white">#6366f1</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="color" id="picker-color" class="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0" oninput="App.State.updateToken('primary', this.value)">
+                            <div class="flex-1 h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-30"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Radius -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] text-gray-400 font-medium">
+                            <span>Border Radius</span>
+                            <span id="val-radius" class="font-mono text-white">8px</span>
+                        </div>
+                        <input type="range" min="0" max="24" step="2" id="range-radius" class="w-full" oninput="App.State.updateToken('radius', this.value)">
+                    </div>
+
+                    <!-- Font -->
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-gray-400 font-medium block">Typography</label>
+                        <select id="sel-font" class="w-full input-field rounded p-2 text-xs" onchange="App.State.updateToken('font', this.value)">
+                            <option value="sans">System Sans (Modern)</option>
+                            <option value="serif">Serif (Elegant)</option>
+                            <option value="mono">Monospace (Geek)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Components -->
+            <div id="step-3" class="step-content space-y-4">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">页面结构</label>
+                    <span id="comp-count" class="bg-indigo-500/20 text-indigo-400 text-[10px] px-2 py-0.5 rounded font-mono border border-indigo-500/20">0 items</span>
+                </div>
+
+                <!-- 拖拽列表 -->
+                <div id="component-list" class="space-y-2 min-h-[100px] pb-10">
+                    <!-- 空状态 -->
+                    <div class="border-2 border-dashed border-white/10 rounded-lg p-6 flex flex-col items-center justify-center text-gray-600 gap-2 hover:border-white/20 transition-colors cursor-pointer" onclick="App.Modal.open('library')">
+                        <i class="fa-solid fa-plus-circle text-2xl opacity-50"></i>
+                        <span class="text-xs">点击添加组件</span>
+                    </div>
+                </div>
+
+                <!-- 浮动添加按钮 -->
+                <div class="sticky bottom-0 pt-4 bg-gradient-to-t from-[#121212] via-[#121212] to-transparent">
+                    <button onclick="App.Modal.open('library')" class="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white border border-white/10 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 group">
+                        <i class="fa-solid fa-shapes group-hover:scale-110 transition-transform"></i>
+                        打开组件库
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="p-4 border-t border-border bg-[#0c0c0e]">
+            <button onclick="App.Engine.generate()" id="btn-generate" class="w-full py-3.5 btn-primary text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 group relative overflow-hidden">
+                <span class="relative z-10 flex items-center gap-2">
+                    <i class="fa-solid fa-bolt"></i> 生成界面代码
+                </span>
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 主工作区 (Main Canvas) -->
+    <main class="flex-1 flex flex-col relative bg-[#050505] bg-grid-pattern overflow-hidden">
+        
+        <!-- Toolbar -->
+        <div class="h-[var(--header-h)] px-6 flex items-center justify-between z-20 pointer-events-none">
+            <!-- Viewport Controls -->
+            <div class="flex items-center gap-2 pointer-events-auto bg-black/60 backdrop-blur-md p-1 rounded-lg border border-white/10">
+                <button onclick="App.Preview.resize('100%')" class="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all" title="Desktop"><i class="fa-solid fa-desktop"></i></button>
+                <button onclick="App.Preview.resize('768px')" class="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all" title="Tablet"><i class="fa-solid fa-tablet-screen-button"></i></button>
+                <button onclick="App.Preview.resize('375px')" class="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all" title="Mobile"><i class="fa-solid fa-mobile-screen-button"></i></button>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-3 pointer-events-auto">
+                <button onclick="App.Modal.open('code')" class="px-4 py-2 bg-black/60 border border-white/10 hover:bg-white/5 text-gray-300 rounded-lg text-xs font-medium backdrop-blur-md transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-code"></i> 查看源码
+                </button>
+                <button onclick="App.Preview.download()" class="px-4 py-2 bg-indigo-600/20 border border-indigo-500/50 text-indigo-300 hover:bg-indigo-600/30 rounded-lg text-xs font-medium backdrop-blur-md transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-download"></i> 导出 HTML
+                </button>
+            </div>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="flex-1 p-8 flex justify-center overflow-hidden relative">
+            <div id="preview-container" class="relative w-full h-full rounded-xl shadow-2xl overflow-hidden transition-all duration-500 ease-out border border-white/10 group">
+                <!-- Iframe Sandbox -->
+                <iframe id="preview-frame" class="w-full h-full border-0"></iframe>
+                
+                <!-- Loading Overlay -->
+                <div id="loader-overlay" class="absolute inset-0 bg-[#09090b]/90 backdrop-blur-md flex flex-col items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+                    <div class="relative mb-6">
+                        <div class="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fa-solid fa-wand-magic-sparkles text-indigo-400 animate-pulse"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">AI 构建中...</h3>
+                    <p id="loader-text" class="text-xs text-gray-500 font-mono">Initializing neural engine...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console / Logs -->
+        <div class="h-8 bg-[#09090b] border-t border-white/10 flex items-center px-4 justify-between select-none z-20">
+            <div class="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
+                <i class="fa-solid fa-terminal text-green-500"></i>
+                <span id="console-status">System Ready.</span>
+            </div>
+            <div class="text-[10px] text-gray-600 font-mono">ExoEngine v9.0.2</div>
+        </div>
+
+    </main>
+
+    <!-- ================== PROMPT REFINERY & AI ENGINE ================== -->
+    <div id="prompt-dock" class="fixed bottom-0 left-0 right-0 z-40 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-y-[calc(100%-48px)] glass-dock shadow-2xl">
+        <!-- Header / Toggle -->
+        <div onclick="App.Prompt.toggleDock()" class="h-[48px] flex items-center justify-between px-6 cursor-pointer hover:bg-white/5 transition-colors">
+            <div class="flex items-center gap-4">
+                <div class="w-6 h-6 rounded bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                    <i class="fa-solid fa-bolt text-[11px]"></i>
+                </div>
+                <h3 class="text-xs font-bold tracking-wider">PROMPT REFINERY & AI ENGINE</h3>
+                <div class="h-4 w-px bg-white/10"></div>
+                <span id="prompt-status" class="text-[10px] text-gray-500">Base Version</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="event.stopPropagation(); App.Prompt.run()" class="bg-white text-black px-3 py-1.5 rounded text-[10px] font-bold hover:scale-105 transition-transform shadow-lg flex items-center gap-2">
+                    <span>RUN AI</span>
+                    <i class="fa-solid fa-play text-[10px]"></i>
+                </button>
+                <i id="dock-arrow" class="fa-solid fa-chevron-up w-5 h-5 text-gray-500 transform transition-transform duration-500"></i>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="h-[320px] flex">
+            <!-- Left: Stack -->
+            <div class="w-[320px] border-r border-white/10 p-5 bg-[#080808] flex flex-col gap-4">
+                <div class="flex justify-between items-end">
+                    <h4 class="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Iteration Stack</h4>
+                </div>
+                <div class="flex-1 overflow-y-auto custom-scroll space-y-2 pr-2">
+                    <div class="p-3 rounded border border-white/10 bg-white/5">
+                        <div class="text-[9px] text-indigo-400 font-bold mb-1">L1. BASE SPEC</div>
+                        <p id="prev-base" class="text-[10px] text-gray-400 truncate">Template: -, Style: -</p>
+                    </div>
+                    <div class="p-3 rounded border border-white/10 bg-white/5">
+                        <div class="text-[9px] text-indigo-300 font-bold mb-1">L2. CONTEXT</div>
+                        <p id="prev-context" class="text-[10px] text-gray-400 italic line-clamp-2">No context...</p>
+                    </div>
+                    <div id="refinement-list" class="space-y-2"></div>
+                </div>
+                <div class="pt-2 border-t border-white/10">
+                    <label class="text-[9px] text-gray-500 block mb-1">ADD REFINEMENT</label>
+                    <div class="flex gap-2">
+                        <input id="refine-input" type="text" class="flex-1 input-field rounded px-2 py-1.5 text-xs" placeholder="例如：加深科技感、突出暗色风格" onkeydown="if(event.key==='Enter') App.Prompt.addRefinement()">
+                        <button onclick="App.Prompt.addRefinement()" class="px-3 bg-white/10 hover:bg-white/20 rounded text-white text-xs">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle: Prompt View -->
+            <div class="flex-1 flex flex-col bg-[#050505]">
+                <div class="flex-1 relative">
+                    <textarea id="prompt-output" class="w-full h-full bg-transparent p-5 font-mono text-[11px] text-gray-300 outline-none resize-none custom-scroll leading-relaxed" readonly spellcheck="false"></textarea>
+                    <div class="absolute top-3 right-3 flex items-center gap-2">
+                        <div class="flex items-center gap-1 bg-black/40 px-2 py-1 rounded border border-white/10">
+                            <span class="text-[9px] text-gray-500">版本</span>
+                            <select id="prompt-version-select" class="bg-transparent text-[10px] text-gray-200 outline-none cursor-pointer"
+                                    onchange="App.Prompt.switchVersion(this.value)">
+                            </select>
+                        </div>
+                        <button onclick="App.Prompt.copyPrompt()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded text-[10px]">Copy</button>
+                    </div>
+                </div>
+                <div class="border-t border-white/10 p-3 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider">LLM Iteration</span>
+                        <span id="prompt-iteration-status" class="text-[10px] text-gray-600"></span>
+                    </div>
+                    <div id="prompt-iteration-log" class="max-h-24 overflow-y-auto custom-scroll space-y-1 text-[10px] text-gray-300"></div>
+                    <div class="flex gap-2">
+                        <input id="prompt-iteration-input" type="text" class="flex-1 input-field rounded px-2 py-1.5 text-xs" placeholder="在此输入本轮优化指令，例如：请加强导航层次感" onkeydown="if(event.key==='Enter'){ App.Prompt.sendIteration() }">
+                        <button onclick="App.Prompt.sendIteration()" class="px-3 bg-indigo-600/80 hover:bg-indigo-500 text-white text-[11px] rounded">发送</button>
+                    </div>
+                    <p class="text-[10px] text-gray-500">提示：会在不改变整体 Prompt 结构的前提下进行轻量优化，方便前后版本对比。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================== MODALS (Fixed & Enhanced) ================== -->
+
+    <!-- 1. Library Modal -->
+    <div id="modal-library" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="App.Modal.close('library')"></div>
+        <div class="relative bg-[#121212] w-[90vw] max-w-6xl h-[85vh] rounded-2xl border border-white/10 shadow-2xl flex flex-col overflow-hidden transform transition-all scale-95 opacity-0" id="modal-library-content">
+            <div class="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-[#18181b] shrink-0">
+                <div>
+                    <h2 class="text-base font-bold text-white">组件资源库</h2>
+                    <p class="text-xs text-gray-500">18 个组件类别 · 100+ 预设组件 · 支持自定义扩展</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <input type="text" placeholder="搜索组件..." class="input-field rounded-full px-4 py-1.5 text-xs w-64 focus:w-72 transition-all" oninput="App.Library.search(this.value)">
+                    <button onclick="App.Modal.close('library')" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-solid fa-times"></i></button>
+                </div>
+            </div>
+            <div class="flex-1 flex overflow-hidden">
+                <div class="w-56 border-r border-white/10 bg-[#141414] p-2 space-y-1 overflow-y-auto custom-scroll" id="lib-categories">
+                    <!-- JS Injected -->
+                </div>
+                <div class="flex-1 bg-[#0a0a0a] p-6 overflow-y-auto custom-scroll">
+                    <div class="grid grid-cols-3 gap-4 pb-10" id="lib-grid">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Settings Modal (Fixed) -->
+    <div id="modal-settings" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"></div>
+        <div class="relative bg-[#18181b] w-full max-w-md rounded-xl border border-white/10 shadow-2xl p-6 transform transition-all scale-95 opacity-0" id="modal-settings-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-indigo-500"></i> AI & 全局配置
+                </h2>
+                <button onclick="App.Modal.close('settings')" class="text-gray-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1.5">AI 模型提供商</label>
+                    <select id="ai-provider" class="w-full input-field rounded p-2 text-xs">
+                        <option value="openai">OpenAI (GPT-4.x / o系列)</option>
+                        <option value="anthropic">Anthropic (Claude 3)</option>
+                        <option value="ollama">Local LLM (Ollama)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1.5">Base URL</label>
+                    <input id="ai-base-url" type="text" class="w-full input-field rounded p-2 text-xs" placeholder="例如：https://api.openai.com/v1">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1.5">API Key</label>
+                    <input id="ai-api-key" type="password" class="w-full input-field rounded p-2 text-xs" placeholder="sk-........................">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1.5">Model 名称</label>
+                    <input id="ai-model" type="text" class="w-full input-field rounded p-2 text-xs" placeholder="例如：gpt-4.1-mini / claude-3-sonnet / qwen2.5">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1.5">生成温度 (Temperature)</label>
+                    <div class="flex items-center gap-3">
+                        <input id="ai-temperature" type="range" min="0" max="1" step="0.1" value="0.7" class="flex-1">
+                        <span id="ai-temperature-display" class="text-xs font-mono text-gray-400">0.7</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1.5">上下文限制 (最大 tokens)</label>
+                    <input id="ai-max-context" type="number" min="512" step="256" class="w-full input-field rounded p-2 text-xs" placeholder="例如：4096">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1.5">系统提示词 (System Prompt)</label>
+                    <textarea id="ai-system-prompt" rows="4" class="w-full input-field rounded p-2 text-xs resize-none" placeholder="例如：你是一名资深前端架构师，负责根据提示生成高质量的单页 HTML 应用。"></textarea>
+                </div>
+                <div class="flex items-center justify-between pt-2">
+                    <label class="flex items-center cursor-pointer gap-2">
+                        <div class="relative">
+                            <input id="ai-auto-fix" type="checkbox" class="sr-only toggle-checkbox" checked>
+                            <div class="w-9 h-5 bg-gray-700 rounded-full shadow-inner toggle-label transition-colors"></div>
+                            <div class="dot absolute w-3 h-3 bg-white rounded-full shadow left-1 top-1 transition"></div>
+                        </div>
+                        <span class="text-xs text-gray-400">启用自动纠错</span>
+                    </label>
+                </div>
+                <div class="pt-4 border-t border-white/10 flex gap-3">
+                    <button onclick="App.Settings.save()" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-bold transition">保存设置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Code View Modal -->
+    <div id="modal-code" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="App.Modal.close('code')"></div>
+        <div class="relative bg-[#1e1e1e] w-[80vw] h-[80vh] rounded-xl border border-white/10 shadow-2xl flex flex-col overflow-hidden transform transition-all scale-95 opacity-0" id="modal-code-content">
+            <div class="h-12 bg-[#252526] flex items-center justify-between px-4 border-b border-black/20 shrink-0">
+                <span class="text-xs text-gray-400 font-mono">index.html [Read Only]</span>
+                <div class="flex gap-2">
+                    <button onclick="App.Utils.copyCode()" class="text-xs bg-white/5 hover:bg-white/10 px-3 py-1 rounded text-gray-300">复制</button>
+                    <button onclick="App.Modal.close('code')" class="text-gray-500 hover:text-white px-2"><i class="fa-solid fa-times"></i></button>
+                </div>
+            </div>
+            <div class="flex-1 overflow-auto custom-scroll p-4 font-mono text-xs leading-6" id="code-viewer">
+                <!-- Code injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用逻辑最后加载 -->
+    <script src="js/app.js"></script>
+</body>
+</html>
