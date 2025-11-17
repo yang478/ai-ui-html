@@ -4,6 +4,8 @@
 
 项目入口为 `index.html`，无任何构建/服务端依赖，适合本地直接打开或放在任意静态服务器上。
 
+<img width="2510" height="1268" alt="image" src="https://github.com/user-attachments/assets/1eb85869-9707-48c1-a03f-6a4280482e1a" />
+
 ---
 
 ## 快速开始
